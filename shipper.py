@@ -43,22 +43,33 @@ class Shipper(BaseShipper):
         """
         return _("SingPost Shipping")
 
-    def _weight(self):
+    def _weight_for_shipment(self, shipment):
         total_weight = Decimal('0')
 
-        for cartitem in self.cart.cartitem_set.all():
+        for cartitem in shipment:
             if cartitem.product.is_shippable:
                 total_weight += Decimal(cartitem.product.weight) * Decimal(cartitem.quantity)
 
         return total_weight
 
-    def cost(self):
-        """
-        Complex calculations can be done here as long as the return value is a dollar figure
-        """
-        assert(self._calculated)
+    def _weight(self):
+        return self._weight_for_shipment(self.cart.cartitem_set.all())
 
+    """
+    Returns a list of shipments.
+    """
+    def _partitioned_shipments(self):
         total_weight = self._weight()
+
+        pair = reduce(lambda x, y: x if x > y else y, \
+            WEIGHT_COST_MAP[config_value('SHIPPING', 'SHIPPING_CHOICE')[0]])
+        max_weight_class = pair[0]
+
+        if not total_weight > max_weight_class:
+            return [self.cart.cartitem_set.all()]
+
+    def _cost_for_shipment(self, shipment):
+        total_weight = self._weight_for_shipment(shipment)
 
         prev = None
         result_cost = None
@@ -67,13 +78,28 @@ class Shipper(BaseShipper):
             WEIGHT_COST_MAP[config_value('SHIPPING', 'SHIPPING_CHOICE')[0]]:
             if total_weight <= Decimal(weight_class):
                 if prev:
-                    if total_weight > prev:
+                    if total_weight > Decimal(prev):
                         result_cost = weight_class_cost
                         break
             else:
-                prev = Decimal(weight_class)
+                prev = weight_class
 
         return result_cost
+
+    def cost(self):
+        """
+        Complex calculations can be done here as long as the return value is a dollar figure
+        """
+        assert(self._calculated)
+
+        shipments = self._partitioned_shipments()
+
+        total_cost = Decimal('0.00')
+
+        for shipment in shipments:
+            total_cost += self._cost_for_shipment(shipment)
+
+        return total_cost
 
     def method(self):
         """
@@ -94,4 +120,3 @@ class Shipper(BaseShipper):
         or location.
         """
         return True
-
