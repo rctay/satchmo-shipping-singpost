@@ -20,8 +20,6 @@ except ImportError:
 class SingPostTestCase(unittest.TestCase):
     def setUp(self):
         self.site = Site.objects.get_current()
-        self.cart1 = Cart.objects.create(site=self.site)
-        self.cart2 = Cart.objects.create(site=self.site)
 
         self.p1 = Product.objects.create(
             site=self.site,
@@ -30,14 +28,17 @@ class SingPostTestCase(unittest.TestCase):
             items_in_stock=10,
             weight=315, weight_units='gms')
 
-        self.cart1.add_item(self.p1, 1)
-        self.cart2.add_item(self.p1, 3)
-
     def test_shipping(self):
+        cart1 = Cart.objects.create(site=self.site)
+        cart2 = Cart.objects.create(site=self.site)
+
+        cart1.add_item(self.p1, 1)
+        cart2.add_item(self.p1, 3)
+
         self.assertTrue(self.p1.is_shippable)
 
-        self.assertTrue(self.cart1.is_shippable)
-        self.assertEqual(singpost(self.cart1, None).cost(), Decimal('1.50'))
+        self.assertTrue(cart1.is_shippable)
+        self.assertEqual(singpost(cart1, None).cost(), Decimal('1.50'))
 
-        self.assertTrue(self.cart2.is_shippable)
-        self.assertEqual(singpost(self.cart2, None).cost(), Decimal('2.55'))
+        self.assertTrue(cart2.is_shippable)
+        self.assertEqual(singpost(cart2, None).cost(), Decimal('2.55'))
