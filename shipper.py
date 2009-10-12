@@ -48,25 +48,62 @@ class Shipper(BaseShipper):
 
         for cartitem in shipment:
             if cartitem.product.is_shippable:
-                total_weight += Decimal(cartitem.product.weight) * Decimal(cartitem.quantity)
+                total_weight += Decimal(cartitem.product.weight)
 
         return total_weight
 
     def _weight(self):
-        return self._weight_for_shipment(self.cart.cartitem_set.all())
+        total_weight = Decimal('0')
+
+        for cartitem in self.cart.cartitem_set.all():
+            if cartitem.product.is_shippable:
+                total_weight += Decimal(cartitem.product.weight) * Decimal(cartitem.quantity)
+
+        return total_weight
+
+    def _cart_as_shipment(self):
+        shipment = []
+        for cartitem in self.cart.cartitem_set.all():
+            for i in xrange(cartitem.quantity):
+                shipment.append(cartitem)
+
+        return shipment
 
     """
     Returns a list of shipments.
     """
     def _partitioned_shipments(self):
-        total_weight = self._weight()
-
         pair = reduce(lambda x, y: x if x > y else y, \
             WEIGHT_COST_MAP[config_value('SHIPPING', 'SHIPPING_CHOICE')[0]])
         max_weight_class = pair[0]
 
-        if not total_weight > max_weight_class:
-            return [self.cart.cartitem_set.all()]
+        if not self._weight() > max_weight_class:
+            return [self._cart_as_shipment()]
+        else:
+            shipments = []
+            a_shipment = []
+            the_weight = Decimal('0')
+            b = None
+            for cartitem in self.cart.cartitem_set.all():
+                for i in xrange(cartitem.quantity):
+                    b = the_weight + Decimal(cartitem.product.weight)
+
+                    if b <= max_weight_class:
+                        the_weight = b
+                        a_shipment.append(cartitem)
+
+                        if b == max_weight_class:
+                            shipments.append(a_shipment)
+                            a_shipment = []
+                    else:
+                        shipments.append(a_shipment)
+                        a_shipment = [cartitem]
+                        the_weight = cartitem.product.weight
+
+            if len(a_shipment):
+                shipments.append(a_shipment)
+
+            return shipments
 
     def _cost_for_shipment(self, shipment):
         total_weight = self._weight_for_shipment(shipment)
