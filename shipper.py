@@ -63,16 +63,15 @@ class Shipper(BaseShipper):
         prev = None
         result_cost = None
 
-        for pair in WEIGHT_COST_MAP[config_value('SHIPPING', 'SHIPPING_CHOICE')[0]]:
-            weight_class = pair[0]
-            weight_class_cost = pair[1]
+        for weight_class, weight_class_cost in \
+            WEIGHT_COST_MAP[config_value('SHIPPING', 'SHIPPING_CHOICE')[0]]:
             if total_weight <= Decimal(weight_class):
                 if prev:
-                    if total_weight > Decimal(prev):
+                    if total_weight > prev:
                         result_cost = weight_class_cost
                         break
             else:
-                prev = weight_class
+                prev = Decimal(weight_class)
 
         return result_cost
 
