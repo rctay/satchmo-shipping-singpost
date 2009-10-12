@@ -44,11 +44,11 @@ class Shipper(BaseShipper):
         return _("SingPost Shipping")
 
     def _weight(self):
-        total_weight = 0
+        total_weight = Decimal('0')
 
         for cartitem in self.cart.cartitem_set.all():
             if cartitem.product.is_shippable:
-                total_weight += cartitem.product.weight * cartitem.quantity
+                total_weight += Decimal(cartitem.product.weight) * Decimal(cartitem.quantity)
 
         return total_weight
 

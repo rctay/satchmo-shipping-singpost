@@ -26,7 +26,7 @@ class SingPostTestCase(unittest.TestCase):
             name='Shoulder Blouse',
             slug='shoulder-blouse',
             items_in_stock=10,
-            weight=315, weight_units='gms')
+            weight='315', weight_units='gms')
 
     def test_shipping(self):
         cart1 = Cart.objects.create(site=self.site)
@@ -35,10 +35,15 @@ class SingPostTestCase(unittest.TestCase):
         cart1.add_item(self.p1, 1)
         cart2.add_item(self.p1, 3)
 
+        ship1 = singpost(cart1, None)
+        ship2 = singpost(cart2, None)
+
         self.assertTrue(self.p1.is_shippable)
 
         self.assertTrue(cart1.is_shippable)
-        self.assertEqual(singpost(cart1, None).cost(), Decimal('1.50'))
+        self.assertEqual(ship1._weight(), Decimal('315'))
+        self.assertEqual(ship1.cost(), Decimal('1.50'))
 
         self.assertTrue(cart2.is_shippable)
-        self.assertEqual(singpost(cart2, None).cost(), Decimal('2.55'))
+        self.assertEqual(ship2._weight(), Decimal('945'))
+        self.assertEqual(ship2.cost(), Decimal('2.55'))
