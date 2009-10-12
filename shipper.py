@@ -43,17 +43,22 @@ class Shipper(BaseShipper):
         """
         return _("SingPost Shipping")
 
+    def _weight(self):
+        total_weight = 0
+
+        for cartitem in self.cart.cartitem_set.all():
+            if cartitem.product.is_shippable:
+                total_weight += cartitem.product.weight * cartitem.quantity
+
+        return total_weight
+
     def cost(self):
         """
         Complex calculations can be done here as long as the return value is a dollar figure
         """
         assert(self._calculated)
 
-        total_weight = 0
-
-        for cartitem in self.cart.cartitem_set.all():
-            if cartitem.product.is_shippable:
-                total_weight += cartitem.product.weight * cartitem.quantity
+        total_weight = self._weight()
 
         prev = None
         result_cost = None
