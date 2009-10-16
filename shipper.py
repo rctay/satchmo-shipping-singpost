@@ -38,7 +38,7 @@ class Shipper(BaseShipper):
         """
         This is mainly helpful for debugging purposes
         """
-        return "Flat Rate: %s" % config_value('SHIPPING', 'FLAT_RATE')
+        return "SingPost"
 
     def description(self):
         """
@@ -145,13 +145,13 @@ class Shipper(BaseShipper):
         """
         Describes the actual delivery service (Mail, FedEx, DHL, UPS, etc)
         """
-        return ugettext(config_value('SHIPPING', 'FLAT_SERVICE'))
+        return _('SingPost')
 
     def expectedDelivery(self):
         """
         Can be a plain string or complex calcuation returning an actual date
         """
-        return ugettext(config_value('SHIPPING', 'FLAT_DAYS'))
+        return _('3-4 business days')
 
     def valid(self, order=None):
         """
