@@ -31,6 +31,9 @@ WEIGHT_COST_MAP = {
 class Shipper(BaseShipper):
     id = "SingPost"
 
+    def __init__(self, service_type='NONSTANDARD_MAIL'):
+        self.service_type = service_type
+
     def __str__(self):
         """
         This is mainly helpful for debugging purposes
@@ -74,7 +77,7 @@ class Shipper(BaseShipper):
     """
     def _partitioned_shipments(self):
         pair = reduce(lambda x, y: x if x > y else y, \
-            WEIGHT_COST_MAP[config_value('SHIPPING', 'SHIPPING_CHOICE')[0]])
+            WEIGHT_COST_MAP[self.service_type])
         max_weight_class = pair[0]
 
         if not self._weight() > max_weight_class:
@@ -112,7 +115,7 @@ class Shipper(BaseShipper):
         result_cost = None
 
         for weight_class, weight_class_cost in \
-            WEIGHT_COST_MAP[config_value('SHIPPING', 'SHIPPING_CHOICE')[0]]:
+            WEIGHT_COST_MAP[self.service_type]:
             if total_weight <= Decimal(weight_class):
                 if prev:
                     if total_weight > Decimal(prev):
