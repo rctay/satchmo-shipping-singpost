@@ -125,6 +125,11 @@ class Shipper(BaseShipper):
             else:
                 prev = weight_class
 
+        # use the lightest class
+        if result_cost is None:
+            result_cost = reduce(lambda x, y: x if x < y else y, \
+                WEIGHT_COST_MAP[self.service_type])[1]
+
         return result_cost
 
     def cost(self):

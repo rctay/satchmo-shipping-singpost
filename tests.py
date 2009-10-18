@@ -83,3 +83,22 @@ class SingPostTestCaseHeavy(unittest.TestCase):
         self.assertTrue(cart2.is_shippable)
         self.assertEqual(ship2._weight(), Decimal('4035'))
         self.assertEqual(ship2.cost(), Decimal('7.70'))
+
+class SingPostTestCaseLight(unittest.TestCase):
+    def setUp(self):
+        self.site = Site.objects.get_current()
+
+        self.p1 = Product.objects.create(
+            site=self.site,
+            name='Stipple Sponge',
+            slug='stipple-sponge',
+            items_in_stock=10,
+            weight='1.6', weight_units='gms')
+
+    def test_shipping1(self):
+        cart1 = Cart.objects.create(site=self.site)
+        cart1.add_item(self.p1, 1)
+        ship1 = singpost(cart1, None)
+        self.assertTrue(cart1.is_shippable)
+        self.assertEqual(ship1._weight(), Decimal('1.6'))
+        self.assertEqual(ship1.cost(), Decimal('0.50'))
