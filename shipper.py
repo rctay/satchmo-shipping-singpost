@@ -13,8 +13,8 @@ except:
     from django.utils._decimal import Decimal
 
 from django.utils.translation import ugettext as _
-from satchmo.configuration import config_value
-from satchmo.shipping.modules.base import BaseShipper
+from livesettings import config_value
+from shipping.modules.base import BaseShipper
 
 WEIGHT_COST_MAP = {
     'NONSTANDARD_MAIL': (

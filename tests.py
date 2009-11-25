@@ -7,8 +7,8 @@ Please see LICENCE for licensing details.
 import unittest
 
 from django.contrib.sites.models import Site
-from satchmo.shop.models import Cart
-from satchmo.product.models import Product
+from satchmo_store.shop.models import Cart
+from product.models import Product
 
 from shipper import Shipper as singpost
 
