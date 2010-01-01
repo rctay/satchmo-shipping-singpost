@@ -1,5 +1,5 @@
 """
-Copyright (C) 2009, Tay Ray Chuan
+Copyright (C) 2009-2010, Tay Ray Chuan
 
 Please see LICENCE for licensing details.
 """
