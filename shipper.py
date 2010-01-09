@@ -125,7 +125,7 @@ class Shipper(BaseShipper):
                     else:
                         shipments.append(a_shipment)
                         a_shipment = [cartitem]
-                        the_weight = cartitem.product.weight
+                        the_weight = Decimal(cartitem.product.weight)
 
             if len(a_shipment):
                 shipments.append(a_shipment)
