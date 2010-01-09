@@ -6,6 +6,7 @@ Please see LICENCE for licensing details.
 
 import unittest
 
+from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.sites.models import Site
 from satchmo_store.shop.models import Cart
 from product.models import Product
@@ -17,6 +18,19 @@ try:
 except ImportError:
     from django.utils._decimal import Decimal
 
+def get_product_blouse():
+    try:
+        p = Product.objects.get(slug='shoulder-blouse')
+    except ObjectDoesNotExist:
+        p = Product.objects.create(
+            site=Site.objects.get_current(),
+            name='Shoulder Blouse',
+            slug='shoulder-blouse',
+            items_in_stock=10,
+            weight='315', weight_units='gms')
+
+    return p
+
 class LocalTestCaseNormal(unittest.TestCase):
     def setUp(self):
         self.site = Site.objects.get_current()
@@ -25,12 +39,7 @@ class LocalTestCaseNormal(unittest.TestCase):
         cart1 = Cart.objects.create(site=self.site)
         cart2 = Cart.objects.create(site=self.site)
 
-        p1 = Product.objects.create(
-            site=self.site,
-            name='Shoulder Blouse',
-            slug='shoulder-blouse',
-            items_in_stock=10,
-            weight='315', weight_units='gms')
+        p1 = get_product_blouse()
 
         cart1.add_item(p1, 1)
         cart2.add_item(p1, 3)
@@ -53,12 +62,7 @@ class LocalTestCaseHeavy(unittest.TestCase):
         self.site = Site.objects.get_current()
 
     def test_shipping1(self):
-        p1 = Product.objects.create(
-            site=self.site,
-            name='Shoulder Blouse2',
-            slug='shoulder-blouse2',
-            items_in_stock=10,
-            weight='315', weight_units='gms')
+        p1 = get_product_blouse()
 
         p2 = Product.objects.create(
             site=self.site,
