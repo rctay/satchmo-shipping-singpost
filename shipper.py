@@ -87,9 +87,9 @@ class Shipper(BaseShipper):
     Returns a list of shipments.
     """
     def _partitioned_shipments(self, wcm):
-        max_weight_class = wcm.get_heaviest_weight()
+        max_weight = wcm.get_heaviest_weight()
 
-        if not self._weight() > max_weight_class:
+        if not self._weight() > max_weight:
             return [self._cart_as_shipment()]
         else:
             shipments = []
@@ -100,11 +100,11 @@ class Shipper(BaseShipper):
                 for i in xrange(cartitem.quantity):
                     b = the_weight + Decimal(cartitem.product.weight)
 
-                    if b <= max_weight_class:
+                    if b <= max_weight:
                         the_weight = b
                         a_shipment.append(cartitem)
 
-                        if b == max_weight_class:
+                        if b == max_weight:
                             shipments.append(a_shipment)
                             a_shipment = []
                     else:
