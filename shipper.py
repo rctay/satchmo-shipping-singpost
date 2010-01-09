@@ -102,25 +102,21 @@ class Shipper(BaseShipper):
 
         return total_weight
 
-    def _cart_as_shipment(self):
-        shipment = []
-        for cartitem in self.cart.cartitem_set.all():
-            for i in xrange(cartitem.quantity):
-                shipment.append(cartitem)
-
-        return shipment
-
     """
     Returns a list of shipments.
     """
     def _partitioned_shipments(self, wcm):
         max_weight = wcm.get_heaviest_weight()
 
+        shipments = []
+        a_shipment = []
+
         if not self._weight() > max_weight:
-            return [self._cart_as_shipment()]
+            # optimized version - no need to check weight for every item
+            for cartitem in self.cart.cartitem_set.all():
+                for i in xrange(cartitem.quantity):
+                    a_shipment.append(cartitem)
         else:
-            shipments = []
-            a_shipment = []
             the_weight = Decimal('0')
             new_weight = None
             for cartitem in self.cart.cartitem_set.all():
@@ -143,10 +139,10 @@ class Shipper(BaseShipper):
                             % (cartitem.product.name, cartitem.product.weight))
                         return None
 
-            if len(a_shipment):
-                shipments.append(a_shipment)
+        if len(a_shipment):
+            shipments.append(a_shipment)
 
-            return shipments
+        return shipments
 
     def _cost_for_shipment(self, shipment, wcm):
         total_weight = self._weight_for_shipment(shipment)
