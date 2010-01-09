@@ -23,6 +23,9 @@ class WeightCostMap:
     def get_lowest_cost(self):
         return reduce(lambda x, y: x if x < y else y, self.map)[1]
 
+    def get_heaviest_weight(self):
+        return reduce(lambda x, y: x if x > y else y, self.map)[0]
+
 WEIGHT_COST_MAPS = {
     'NONSTANDARD_MAIL': WeightCostMap((
         (40,	Decimal('0.50')),
@@ -84,8 +87,7 @@ class Shipper(BaseShipper):
     Returns a list of shipments.
     """
     def _partitioned_shipments(self, wcm):
-        pair = reduce(lambda x, y: x if x > y else y, wcm.map)
-        max_weight_class = pair[0]
+        max_weight_class = wcm.get_heaviest_weight()
 
         if not self._weight() > max_weight_class:
             return [self._cart_as_shipment()]
