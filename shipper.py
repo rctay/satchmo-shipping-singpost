@@ -42,7 +42,7 @@ class WeightCostMap:
         return result_cost
 
 WEIGHT_COST_MAPS = {
-    'NONSTANDARD_MAIL': WeightCostMap((
+    'LOCAL': WeightCostMap((
         (40,	Decimal('0.50')),
         (100,	Decimal('0.80')),
         (250,	Decimal('1.00')),
@@ -55,7 +55,7 @@ WEIGHT_COST_MAPS = {
 class Shipper(BaseShipper):
     id = "SingPost"
 
-    def __init__(self, cart=None, contact=None, service_type='NONSTANDARD_MAIL'):
+    def __init__(self, cart=None, contact=None, service_type='LOCAL'):
         super(Shipper, self).__init__(cart, contact)
 
         self.service_type = service_type
