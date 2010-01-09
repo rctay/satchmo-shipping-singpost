@@ -9,3 +9,20 @@ from livesettings import *
 
 SHIP_MODULES = config_get('SHIPPING', 'MODULES')
 SHIP_MODULES.add_choice(('singpost', 'SingPost'))
+
+SHIPPING_GROUP = ConfigurationGroup('singpost',
+  _('SingPost Shipping Settings'),
+  requires = SHIP_MODULES,
+  requiresvalue='singpost',
+  ordering = 101
+)
+
+config_register_list(
+    MultipleStringValue(SHIPPING_GROUP,
+        'SINGPOST_SHIPPING_CHOICES',
+        description=_("SingPost shipping choices available to customers."),
+        choices = (
+            (('LOCAL', 'Local mail (inclusive of 7%% GST')),
+        ),
+        default = ('LOCAL',)),
+)
