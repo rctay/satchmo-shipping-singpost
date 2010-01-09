@@ -31,6 +31,32 @@ def get_product_blouse():
 
     return p
 
+def get_product_dress():
+    try:
+        p = Product.objects.get(slug='lovely-dress')
+    except ObjectDoesNotExist:
+        p = Product.objects.create(
+            site=Site.objects.get_current(),
+            name='Lovely Dress',
+            slug='lovely-dress',
+            items_in_stock=10,
+            weight='42', weight_units='gms')
+
+    return p
+
+def get_product_skirt():
+    try:
+        p = Product.objects.get(slug='denim-skirt')
+    except ObjectDoesNotExist:
+        p = Product.objects.create(
+            site=Site.objects.get_current(),
+            name='Denim Skirt',
+            slug='denim-skirt',
+            items_in_stock=10,
+            weight='115', weight_units='gms')
+
+    return p
+
 class LocalTestCaseNormal(unittest.TestCase):
     def setUp(self):
         self.site = Site.objects.get_current()
@@ -116,7 +142,44 @@ class LocalTestCaseLight(unittest.TestCase):
 
         cart1 = Cart.objects.create(site=self.site)
         cart1.add_item(p1, 1)
-        ship1 = singpost(cart1, None)
+        ship1 = singpost(cart=cart1, service_type='LOCAL')
         self.assertTrue(cart1.is_shippable)
         self.assertEqual(ship1._weight(), Decimal('1.6'))
         self.assertEqual(ship1.cost(), Decimal('0.50'))
+
+class SurfaceTestCaseNormal(unittest.TestCase):
+    def setUp(self):
+        self.site = Site.objects.get_current()
+
+    def test_shipping1(self):
+        p1 = get_product_dress()
+        p2 = get_product_blouse()
+        p3 = get_product_skirt()
+
+        cart1 = Cart.objects.create(site=self.site)
+        cart1.add_item(p1, 1)
+        ship1 = singpost(cart=cart1, service_type='SURFACE')
+        self.assertTrue(cart1.is_shippable)
+        self.assertEqual(ship1._weight(), Decimal('42'))
+        self.assertEqual(ship1.cost(), Decimal('0.70'))
+
+        cart2 = Cart.objects.create(site=self.site)
+        cart2.add_item(p2, 1)
+        ship2 = singpost(cart=cart2, service_type='SURFACE')
+        self.assertTrue(cart2.is_shippable)
+        self.assertEqual(ship2._weight(), Decimal('315'))
+        self.assertEqual(ship2.cost(), Decimal('4.00'))
+
+        cart3 = Cart.objects.create(site=self.site)
+        cart3.add_item(p3, 1)
+        ship3 = singpost(cart=cart3, service_type='SURFACE')
+        self.assertTrue(cart3.is_shippable)
+        self.assertEqual(ship3._weight(), Decimal('115'))
+        self.assertEqual(ship3.cost(), Decimal('2.00'))
+
+        cart4 = Cart.objects.create(site=self.site)
+        cart4.add_item(p1, 2)
+        ship4 = singpost(cart=cart4, service_type='SURFACE')
+        self.assertTrue(cart4.is_shippable)
+        self.assertEqual(ship4._weight(), Decimal('84'))
+        self.assertEqual(ship4.cost(), Decimal('1.00'))

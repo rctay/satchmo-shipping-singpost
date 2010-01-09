@@ -8,9 +8,9 @@ Please see LICENCE for licensing details.
 Each shipping option uses the data in an Order object to calculate the shipping cost and return the value
 """
 try:
-    from decimal import Decimal
+    from decimal import getcontext, Decimal
 except:
-    from django.utils._decimal import Decimal
+    from django.utils._decimal import getcontext, Decimal
 
 from django.utils.translation import ugettext as _
 from livesettings import config_value
@@ -28,8 +28,11 @@ class BaseWeightCostMap(object):
     def get_lowest_cost(self):
         return reduce(lambda x, y: x if x < y else y, self.map)[1]
 
+    def get_heaviest_weight_tier(self):
+        return reduce(lambda x, y: x if x > y else y, self.map)
+
     def get_heaviest_weight(self):
-        return reduce(lambda x, y: x if x > y else y, self.map)[0]
+        return self.get_heaviest_weight_tier()[0]
 
     def cost_for_shipment_with_weight(self, shipment_weight):
         raise NotImplementedError
@@ -108,6 +111,43 @@ class TieredWeightCostMap(BaseWeightCostMap):
 
         return shipments
 
+class ImpliedTieredWeightCostMap(TieredWeightCostMap):
+    """
+    implied_tier --- A tuple of (weight_step, Decimal(n)) form. When weight
+    exceeds the last specified weight in map, cost is added for every
+    additional weight_step.
+    """
+    def __init__(self, implied_tier, maximum_item_weight, \
+        *args, **kwargs):
+        super(TieredWeightCostMap, self).__init__(*args, **kwargs)
+
+        self.maximum_item_weight = maximum_item_weight
+        self.implied_tier = implied_tier
+
+    def cost_for_shipment_with_weight(self, shipment_weight):
+        max_tier = self.get_heaviest_weight_tier()
+
+        if (shipment_weight <= max_tier[0]):
+            prev = None
+            result_cost = None
+
+            for weight, cost in self.map:
+                if shipment_weight <= Decimal(weight):
+                    if prev:
+                        if shipment_weight > Decimal(prev):
+                            result_cost = cost
+                            break
+                else:
+                    prev = weight
+        else:
+            result = getcontext().divmod(\
+                Decimal(shipment_weight - max_tier[0]), \
+                Decimal(self.implied_tier[0]))
+            steps = result[0] + (1 if result[1] > Decimal('0') else 0)
+            result_cost = max_tier[1] + steps * self.implied_tier[1]
+
+        return result_cost
+
 WEIGHT_COST_MAPS = {
     'LOCAL': TieredWeightCostMap(map=(
         (40,	Decimal('0.50')),
@@ -117,6 +157,15 @@ WEIGHT_COST_MAPS = {
         (1000,	Decimal('2.55')),
         (2000,	Decimal('3.35'))
     )),
+    'SURFACE': ImpliedTieredWeightCostMap(
+        map=(
+        (20,	Decimal('0.50')),
+        (50,	Decimal('0.70')),
+        (100,	Decimal('1.00'))
+        ), \
+        implied_tier=(100, Decimal('1.00')), \
+        maximum_item_weight=2000
+    ),
 }
 
 class Shipper(BaseShipper):
