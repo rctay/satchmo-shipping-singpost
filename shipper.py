@@ -16,6 +16,9 @@ from django.utils.translation import ugettext as _
 from livesettings import config_value
 from shipping.modules.base import BaseShipper
 
+import logging
+log = logging.getLogger('singpost.shipper')
+
 class WeightCostMap:
     def __init__(self, map):
         self.map = map
@@ -122,10 +125,14 @@ class Shipper(BaseShipper):
                         if new_weight == max_weight:
                             shipments.append(a_shipment)
                             a_shipment = []
-                    else:
+                    elif len(a_shipment) > 0 and the_weight > Decimal('0'):
                         shipments.append(a_shipment)
                         a_shipment = [cartitem]
                         the_weight = Decimal(cartitem.product.weight)
+                    else:
+                        log.error("item exceeds max weight: name=%s, weight=%d" \
+                            % (cartitem.product.name, cartitem.product.weight))
+                        return None
 
             if len(a_shipment):
                 shipments.append(a_shipment)
@@ -152,6 +159,9 @@ class Shipper(BaseShipper):
         wcm = WEIGHT_COST_MAPS[self.service_type]
 
         shipments = self._partitioned_shipments(wcm)
+
+        if shipments == None:
+            return None
 
         total_cost = Decimal('0.00')
 

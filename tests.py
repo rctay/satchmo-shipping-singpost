@@ -84,6 +84,20 @@ class SingPostTestCaseHeavy(unittest.TestCase):
         self.assertEqual(ship2._weight(), Decimal('4035'))
         self.assertEqual(ship2.cost(), Decimal('7.70'))
 
+        # exceeds max weight and can't be split
+        p3 = Product.objects.create(
+            site=self.site,
+            name='Shoulder Blouse4',
+            slug='shoulder-blouse4',
+            items_in_stock=10,
+            weight='2001', weight_units='gms')
+        cart3 = Cart.objects.create(site=self.site)
+        cart3.add_item(p3, 1)
+        ship3 = singpost(cart3, None)
+        self.assertTrue(cart3.is_shippable)
+        self.assertEqual(ship3._weight(), Decimal('2001'))
+        self.assertEqual(ship3.cost(), None)
+
 class SingPostTestCaseLight(unittest.TestCase):
     def setUp(self):
         self.site = Site.objects.get_current()
