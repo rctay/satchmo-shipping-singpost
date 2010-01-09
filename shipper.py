@@ -22,6 +22,7 @@ log = logging.getLogger('singpost.shipper')
 class BaseWeightCostMap(object):
     def __init__(self, map):
         self.map = map
+
         self.maximum_item_weight = None
 
     def get_lowest_cost(self):
@@ -103,7 +104,7 @@ class TieredWeightCostMap(BaseWeightCostMap):
         return shipments
 
 WEIGHT_COST_MAPS = {
-    'LOCAL': TieredWeightCostMap((
+    'LOCAL': TieredWeightCostMap(map=(
         (40,	Decimal('0.50')),
         (100,	Decimal('0.80')),
         (250,	Decimal('1.00')),
