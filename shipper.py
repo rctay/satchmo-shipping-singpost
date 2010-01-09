@@ -20,6 +20,9 @@ class WeightCostMap:
     def __init__(self, map):
         self.map = map
 
+    def get_lowest_cost(self):
+        return reduce(lambda x, y: x if x < y else y, self.map)[1]
+
 WEIGHT_COST_MAPS = {
     'NONSTANDARD_MAIL': WeightCostMap((
         (40,	Decimal('0.50')),
@@ -129,7 +132,7 @@ class Shipper(BaseShipper):
 
         # use the lightest class
         if result_cost is None:
-            result_cost = reduce(lambda x, y: x if x < y else y, wcm.map)[1]
+            result_cost = wcm.get_lowest_cost()
 
         return result_cost
 
