@@ -149,19 +149,21 @@ class ImpliedTieredWeightCostMap(TieredWeightCostMap):
         return result_cost
 
 WEIGHT_COST_MAPS = {
-    'LOCAL': TieredWeightCostMap(map=(
-        (40,	Decimal('0.50')),
-        (100,	Decimal('0.80')),
-        (250,	Decimal('1.00')),
-        (500,	Decimal('1.50')),
-        (1000,	Decimal('2.55')),
-        (2000,	Decimal('3.35'))
-    )),
+    'LOCAL': TieredWeightCostMap(
+        map=(
+            (40,	Decimal('0.50')),
+            (100,	Decimal('0.80')),
+            (250,	Decimal('1.00')),
+            (500,	Decimal('1.50')),
+            (1000,	Decimal('2.55')),
+            (2000,	Decimal('3.35'))
+        )
+    ),
     'SURFACE': ImpliedTieredWeightCostMap(
         map=(
-        (20,	Decimal('0.50')),
-        (50,	Decimal('0.70')),
-        (100,	Decimal('1.00'))
+            (20,	Decimal('0.50')),
+            (50,	Decimal('0.70')),
+            (100,	Decimal('1.00'))
         ), \
         implied_tier=(100, Decimal('1.00')), \
         maximum_item_weight=2000
