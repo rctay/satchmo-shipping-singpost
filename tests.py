@@ -35,14 +35,14 @@ class LocalTestCaseNormal(unittest.TestCase):
         cart1.add_item(self.p1, 1)
         cart2.add_item(self.p1, 3)
 
-        self.ship1 = singpost(cart1, None)
+        ship1 = singpost(cart1, None)
         ship2 = singpost(cart2, None)
 
         self.assertTrue(self.p1.is_shippable)
 
         self.assertTrue(cart1.is_shippable)
-        self.assertEqual(self.ship1._weight(), Decimal('315'))
-        self.assertEqual(self.ship1.cost(), Decimal('1.50'))
+        self.assertEqual(ship1._weight(), Decimal('315'))
+        self.assertEqual(ship1.cost(), Decimal('1.50'))
 
         self.assertTrue(cart2.is_shippable)
         self.assertEqual(ship2._weight(), Decimal('945'))
