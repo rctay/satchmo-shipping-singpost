@@ -44,8 +44,8 @@ class LocalTestCaseNormal(unittest.TestCase):
         cart1.add_item(p1, 1)
         cart2.add_item(p1, 3)
 
-        ship1 = singpost(cart=cart1)
-        ship2 = singpost(cart=cart2)
+        ship1 = singpost(cart=cart1, service_type='LOCAL')
+        ship2 = singpost(cart=cart2, service_type='LOCAL')
 
         self.assertTrue(p1.is_shippable)
 
@@ -74,7 +74,7 @@ class LocalTestCaseHeavy(unittest.TestCase):
         # should split into 2 shipments: [6, 3]
         cart1 = Cart.objects.create(site=self.site)
         cart1.add_item(p1, 9)
-        ship1 = singpost(cart=cart1)
+        ship1 = singpost(cart=cart1, service_type='LOCAL')
         self.assertTrue(cart1.is_shippable)
         self.assertEqual(ship1._weight(), Decimal('2835'))
         self.assertEqual(ship1.cost(), Decimal('5.90'))
@@ -83,7 +83,7 @@ class LocalTestCaseHeavy(unittest.TestCase):
         cart2 = Cart.objects.create(site=self.site)
         cart2.add_item(p1, 9)
         cart2.add_item(p2, 6)
-        ship2 = singpost(cart=cart2)
+        ship2 = singpost(cart=cart2, service_type='LOCAL')
         self.assertTrue(cart2.is_shippable)
         self.assertEqual(ship2._weight(), Decimal('4035'))
         self.assertEqual(ship2.cost(), Decimal('7.70'))
@@ -97,7 +97,7 @@ class LocalTestCaseHeavy(unittest.TestCase):
             weight='2001', weight_units='gms')
         cart3 = Cart.objects.create(site=self.site)
         cart3.add_item(p3, 1)
-        ship3 = singpost(cart=cart3)
+        ship3 = singpost(cart=cart3, service_type='LOCAL')
         self.assertTrue(cart3.is_shippable)
         self.assertEqual(ship3._weight(), Decimal('2001'))
         self.assertEqual(ship3.cost(), None)
