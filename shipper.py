@@ -31,7 +31,7 @@ class BaseWeightCostMap(object):
     def get_heaviest_weight(self):
         return reduce(lambda x, y: x if x > y else y, self.map)[0]
 
-    def cost_for_weight(self, total_weight):
+    def cost_for_shipment_with_weight(self, shipment_weight):
         raise NotImplementedError
 
     """
@@ -51,14 +51,19 @@ class TieredWeightCostMap(BaseWeightCostMap):
     maximum allowed weight of a single item is the heaviest weight
     specified in map.
     """
-    def cost_for_weight(self, total_weight):
+    def cost_for_shipment_with_weight(self, shipment_weight):
+        if (shipment_weight > self.maximum_item_weight):
+            log.error("shipment weight exceeds maximum allowed weight: weight=%d, max=%d" \
+                % (shipment_weight, self.maximum_item_weight))
+            return None
+
         prev = None
         result_cost = None
 
         for weight, cost in self.map:
-            if total_weight <= Decimal(weight):
+            if shipment_weight <= Decimal(weight):
                 if prev:
-                    if total_weight > Decimal(prev):
+                    if shipment_weight > Decimal(prev):
                         result_cost = cost
                         break
             else:
@@ -153,9 +158,9 @@ class Shipper(BaseShipper):
         return total_weight
 
     def _cost_for_shipment(self, shipment, wcm):
-        total_weight = self._weight_for_shipment(shipment)
+        shipment_weight = self._weight_for_shipment(shipment)
 
-        result_cost = wcm.cost_for_weight(total_weight)
+        result_cost = wcm.cost_for_shipment_with_weight(shipment_weight)
 
         # use the lightest class
         if result_cost is None:
