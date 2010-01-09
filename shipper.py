@@ -26,6 +26,21 @@ class WeightCostMap:
     def get_heaviest_weight(self):
         return reduce(lambda x, y: x if x > y else y, self.map)[0]
 
+    def cost_for_weight(self, total_weight):
+        prev = None
+        result_cost = None
+
+        for weight, cost in self.map:
+            if total_weight <= Decimal(weight):
+                if prev:
+                    if total_weight > Decimal(prev):
+                        result_cost = cost
+                        break
+            else:
+                prev = weight
+
+        return result_cost
+
 WEIGHT_COST_MAPS = {
     'NONSTANDARD_MAIL': WeightCostMap((
         (40,	Decimal('0.50')),
@@ -120,17 +135,7 @@ class Shipper(BaseShipper):
     def _cost_for_shipment(self, shipment, wcm):
         total_weight = self._weight_for_shipment(shipment)
 
-        prev = None
-        result_cost = None
-
-        for weight_class, weight_class_cost in wcm.map:
-            if total_weight <= Decimal(weight_class):
-                if prev:
-                    if total_weight > Decimal(prev):
-                        result_cost = weight_class_cost
-                        break
-            else:
-                prev = weight_class
+        result_cost = wcm.cost_for_weight(total_weight)
 
         # use the lightest class
         if result_cost is None:
