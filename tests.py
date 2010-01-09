@@ -17,7 +17,7 @@ try:
 except ImportError:
     from django.utils._decimal import Decimal
 
-class SingPostTestCaseNormal(unittest.TestCase):
+class LocalTestCaseNormal(unittest.TestCase):
     def setUp(self):
         self.site = Site.objects.get_current()
 
@@ -48,7 +48,7 @@ class SingPostTestCaseNormal(unittest.TestCase):
         self.assertEqual(ship2._weight(), Decimal('945'))
         self.assertEqual(ship2.cost(), Decimal('2.55'))
 
-class SingPostTestCaseHeavy(unittest.TestCase):
+class LocalTestCaseHeavy(unittest.TestCase):
     def setUp(self):
         self.site = Site.objects.get_current()
 
@@ -98,7 +98,7 @@ class SingPostTestCaseHeavy(unittest.TestCase):
         self.assertEqual(ship3._weight(), Decimal('2001'))
         self.assertEqual(ship3.cost(), None)
 
-class SingPostTestCaseLight(unittest.TestCase):
+class LocalTestCaseLight(unittest.TestCase):
     def setUp(self):
         self.site = Site.objects.get_current()
 
