@@ -16,15 +16,19 @@ from django.utils.translation import ugettext as _
 from livesettings import config_value
 from shipping.modules.base import BaseShipper
 
-WEIGHT_COST_MAP = {
-    'NONSTANDARD_MAIL': (
+class WeightCostMap:
+    def __init__(self, map):
+        self.map = map
+
+WEIGHT_COST_MAPS = {
+    'NONSTANDARD_MAIL': WeightCostMap((
         (40,	Decimal('0.50')),
         (100,	Decimal('0.80')),
         (250,	Decimal('1.00')),
         (500,	Decimal('1.50')),
         (1000,	Decimal('2.55')),
         (2000,	Decimal('3.35'))
-    )
+    )),
 }
 
 class Shipper(BaseShipper):
@@ -76,9 +80,8 @@ class Shipper(BaseShipper):
     """
     Returns a list of shipments.
     """
-    def _partitioned_shipments(self):
-        pair = reduce(lambda x, y: x if x > y else y, \
-            WEIGHT_COST_MAP[self.service_type])
+    def _partitioned_shipments(self, wcm):
+        pair = reduce(lambda x, y: x if x > y else y, wcm.map)
         max_weight_class = pair[0]
 
         if not self._weight() > max_weight_class:
@@ -109,14 +112,13 @@ class Shipper(BaseShipper):
 
             return shipments
 
-    def _cost_for_shipment(self, shipment):
+    def _cost_for_shipment(self, shipment, wcm):
         total_weight = self._weight_for_shipment(shipment)
 
         prev = None
         result_cost = None
 
-        for weight_class, weight_class_cost in \
-            WEIGHT_COST_MAP[self.service_type]:
+        for weight_class, weight_class_cost in wcm.map:
             if total_weight <= Decimal(weight_class):
                 if prev:
                     if total_weight > Decimal(prev):
@@ -127,8 +129,7 @@ class Shipper(BaseShipper):
 
         # use the lightest class
         if result_cost is None:
-            result_cost = reduce(lambda x, y: x if x < y else y, \
-                WEIGHT_COST_MAP[self.service_type])[1]
+            result_cost = reduce(lambda x, y: x if x < y else y, wcm.map)[1]
 
         return result_cost
 
@@ -138,12 +139,14 @@ class Shipper(BaseShipper):
         """
         assert(self._calculated)
 
-        shipments = self._partitioned_shipments()
+        wcm = WEIGHT_COST_MAPS[self.service_type]
+
+        shipments = self._partitioned_shipments(wcm)
 
         total_cost = Decimal('0.00')
 
         for shipment in shipments:
-            total_cost += self._cost_for_shipment(shipment)
+            total_cost += self._cost_for_shipment(shipment, wcm)
 
         return total_cost
 
