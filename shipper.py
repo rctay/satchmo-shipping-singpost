@@ -19,9 +19,10 @@ from shipping.modules.base import BaseShipper
 import logging
 log = logging.getLogger('singpost.shipper')
 
-class BaseWeightCostMap:
+class BaseWeightCostMap(object):
     def __init__(self, map):
         self.map = map
+        self.maximum_item_weight = None
 
     def get_lowest_cost(self):
         return reduce(lambda x, y: x if x < y else y, self.map)[1]
@@ -39,6 +40,11 @@ class BaseWeightCostMap:
         raise NotImplementedError
 
 class TieredWeightCostMap(BaseWeightCostMap):
+    def __init__(self, *args, **kwargs):
+        super(TieredWeightCostMap, self).__init__(*args, **kwargs)
+
+        self.maximum_item_weight = self.get_heaviest_weight()
+
     """
     The weight of a single must fall within specified "tiers", therefore the
     maximum allowed weight of a single item is the heaviest weight
@@ -60,12 +66,10 @@ class TieredWeightCostMap(BaseWeightCostMap):
         return result_cost
 
     def partitioned_shipments(self, total_weight, cart):
-        max_weight = self.get_heaviest_weight()
-
         shipments = []
         a_shipment = []
 
-        if total_weight < max_weight:
+        if total_weight < self.maximum_item_weight:
             # optimized version - no need to check weight for every item
             for cartitem in cart.cartitem_set.all():
                 for i in xrange(cartitem.quantity):
@@ -77,11 +81,11 @@ class TieredWeightCostMap(BaseWeightCostMap):
                 for i in xrange(cartitem.quantity):
                     new_weight = the_weight + Decimal(cartitem.product.weight)
 
-                    if new_weight <= max_weight:
+                    if new_weight <= self.maximum_item_weight:
                         the_weight = new_weight
                         a_shipment.append(cartitem)
 
-                        if new_weight == max_weight:
+                        if new_weight == self.maximum_item_weight:
                             shipments.append(a_shipment)
                             a_shipment = []
                     elif len(a_shipment) > 0 and the_weight > Decimal('0'):
