@@ -19,7 +19,7 @@ from shipping.modules.base import BaseShipper
 import logging
 log = logging.getLogger('singpost.shipper')
 
-class WeightCostMap:
+class BaseWeightCostMap:
     def __init__(self, map):
         self.map = map
 
@@ -29,6 +29,15 @@ class WeightCostMap:
     def get_heaviest_weight(self):
         return reduce(lambda x, y: x if x > y else y, self.map)[0]
 
+    def cost_for_weight(self, total_weight):
+        raise NotImplementedError
+
+class TieredWeightCostMap(BaseWeightCostMap):
+    """
+    The weight of a single must fall within specified "tiers", therefore the
+    maximum allowed weight of a single item is the heaviest weight
+    specified in map.
+    """
     def cost_for_weight(self, total_weight):
         prev = None
         result_cost = None
@@ -45,7 +54,7 @@ class WeightCostMap:
         return result_cost
 
 WEIGHT_COST_MAPS = {
-    'LOCAL': WeightCostMap((
+    'LOCAL': TieredWeightCostMap((
         (40,	Decimal('0.50')),
         (100,	Decimal('0.80')),
         (250,	Decimal('1.00')),
