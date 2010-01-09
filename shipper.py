@@ -111,7 +111,7 @@ class Shipper(BaseShipper):
         shipments = []
         a_shipment = []
 
-        if not self._weight() > max_weight:
+        if self._weight() < max_weight:
             # optimized version - no need to check weight for every item
             for cartitem in self.cart.cartitem_set.all():
                 for i in xrange(cartitem.quantity):
