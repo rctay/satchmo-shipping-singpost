@@ -110,16 +110,16 @@ class Shipper(BaseShipper):
             shipments = []
             a_shipment = []
             the_weight = Decimal('0')
-            b = None
+            new_weight = None
             for cartitem in self.cart.cartitem_set.all():
                 for i in xrange(cartitem.quantity):
-                    b = the_weight + Decimal(cartitem.product.weight)
+                    new_weight = the_weight + Decimal(cartitem.product.weight)
 
-                    if b <= max_weight:
-                        the_weight = b
+                    if new_weight <= max_weight:
+                        the_weight = new_weight
                         a_shipment.append(cartitem)
 
-                        if b == max_weight:
+                        if new_weight == max_weight:
                             shipments.append(a_shipment)
                             a_shipment = []
                     else:
