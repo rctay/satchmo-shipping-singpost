@@ -172,6 +172,35 @@ class ImplicitCostTiers(ExplicitCostTiers):
 
         return result_cost
 
+class ZonedCostTiers(ImplicitCostTiers):
+    def __init__(self, maximum_item_weight=None,
+        *args, **kwargs):
+        super(ZonedCostTiers, self).__init__(
+            maximum_item_weight=maximum_item_weight,
+            *args, **kwargs)
+
+class ZonedCostTiersSet(BaseCostTiers):
+    def __init__(self, zones, maximum_item_weight, tiers=None,
+        *args, **kwargs):
+        super(ZonedCostTiersSet, self).__init__(tiers=tiers,
+            *args, **kwargs)
+
+        self.maximum_item_weight = maximum_item_weight
+
+        for zone in zones:
+            zone.maximum_item_weight = self.maximum_item_weight
+
+        self.zones = zones
+
+    def tier_for_country(self, country):
+        for zone in self.zones:
+            if zone.filter.country_is_included(country):
+                return zone
+
+        log.error('Could not determine zone for country:' \
+        'country=%s' % country)
+        return None
+
 SERVICE_TIERS = {
     'LOCAL': ExplicitCostTiers(
         tiers=(
@@ -194,6 +223,21 @@ SERVICE_TIERS = {
         maximum_item_weight=2000,
         filter = CountryFilter(exclude=('MY', 'BN'))
     ),
+    'AIR': ZonedCostTiersSet(
+        zones=(
+            ZonedCostTiers(
+                tiers=(
+                    (20,	Decimal('0.45')),
+                    (50,	Decimal('0.55')),
+                    (100,	Decimal('0.85'))
+                ),
+                implied_tier=(100, Decimal('1.00')),
+                filter = CountryFilter(include=('MY', 'BN'))
+            ),
+        ),
+        maximum_item_weight=2000,
+        filter = CountryFilter(exclude=('SG'))
+    ),
 }
 
 def resolve_tier(service_type, contact):
@@ -202,6 +246,9 @@ def resolve_tier(service_type, contact):
     if not tier.filter.country_is_included(
         contact.shipping_address.country):
         return None
+
+    if tier.tiers == None and hasattr(tier, 'zones'):
+        tier = tier.tier_for_country(contact.shipping_address.country)
 
     return tier
 

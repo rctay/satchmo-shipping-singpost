@@ -264,3 +264,28 @@ class SurfaceTestCase(BaseTestCase):
 
         ship3 = singpost(cart=cart1, service_type='SURFACE', contact=self.contact_th)
         self.assertEqual(ship3.cost(), Decimal('0.70'))
+
+class AirTestCase(BaseTestCase):
+    def test_zoning(self):
+        cart1 = Cart.objects.create(site=self.site)
+        cart1.add_item(self.product_dress, 1)
+
+        ship1 = singpost(cart=cart1, service_type='AIR', contact=self.contact_sg)
+        self.assertEqual(ship1.cost(), None)
+
+    def test_zone1(self):
+        p1 = self.product_dress
+
+        cart1 = Cart.objects.create(site=self.site)
+        cart1.add_item(p1, 1)
+        ship1 = singpost(cart=cart1, service_type='AIR', contact=self.contact_my)
+        self.assertTrue(cart1.is_shippable)
+        self.assertEqual(ship1._weight(), Decimal('42'))
+        self.assertEqual(ship1.cost(), Decimal('0.55'))
+
+        cart2 = Cart.objects.create(site=self.site)
+        cart2.add_item(p1, 2)
+        ship2 = singpost(cart=cart2, service_type='AIR', contact=self.contact_bn)
+        self.assertTrue(cart2.is_shippable)
+        self.assertEqual(ship2._weight(), Decimal('84'))
+        self.assertEqual(ship2.cost(), Decimal('0.85'))
