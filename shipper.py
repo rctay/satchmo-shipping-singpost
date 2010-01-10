@@ -35,7 +35,7 @@ class CountryFilter(object):
             and ('*' in self.include or country in self.include):
             return True
 
-        log.error('failed to determine inclusion status of country:' \
+        log.error('excluding country:' \
             'country=%s, inc=%s, exc=%s' \
             % (country, repr(self.include), repr(self.exclude)))
         return False
