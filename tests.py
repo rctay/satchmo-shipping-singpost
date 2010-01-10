@@ -117,16 +117,20 @@ class LocalShippingTestCase(BaseTestCase):
         self.assertEqual(ship2._weight(), Decimal('945'))
         self.assertEqual(ship2.cost(), Decimal('2.55'))
 
-    def test_country_filter(self):
-        p1 = self.product_blouse
+    def test_simple_shipping2(self):
+        p1 = Product.objects.create(
+            site=self.site,
+            name='Stipple Sponge',
+            slug='stipple-sponge',
+            items_in_stock=10,
+            weight='1.6', weight_units='gms')
+
         cart1 = Cart.objects.create(site=self.site)
         cart1.add_item(p1, 1)
-
         ship1 = singpost(cart=cart1, service_type='LOCAL', contact=self.contact_sg)
-        self.assertEqual(ship1.cost(), Decimal('1.50'))
-
-        ship2 = singpost(cart=cart1, service_type='LOCAL', contact=self.contact_my)
-        self.assertEqual(ship2.cost(), None)
+        self.assertTrue(cart1.is_shippable)
+        self.assertEqual(ship1._weight(), Decimal('1.6'))
+        self.assertEqual(ship1.cost(), Decimal('0.50'))
 
     def test_partitioned_shipping(self):
         p1 = self.product_blouse
@@ -164,20 +168,16 @@ class LocalShippingTestCase(BaseTestCase):
         self.assertEqual(ship3._weight(), Decimal('2001'))
         self.assertEqual(ship3.cost(), None)
 
-    def test_simple_shipping2(self):
-        p1 = Product.objects.create(
-            site=self.site,
-            name='Stipple Sponge',
-            slug='stipple-sponge',
-            items_in_stock=10,
-            weight='1.6', weight_units='gms')
-
+    def test_country_filter(self):
+        p1 = self.product_blouse
         cart1 = Cart.objects.create(site=self.site)
         cart1.add_item(p1, 1)
+
         ship1 = singpost(cart=cart1, service_type='LOCAL', contact=self.contact_sg)
-        self.assertTrue(cart1.is_shippable)
-        self.assertEqual(ship1._weight(), Decimal('1.6'))
-        self.assertEqual(ship1.cost(), Decimal('0.50'))
+        self.assertEqual(ship1.cost(), Decimal('1.50'))
+
+        ship2 = singpost(cart=cart1, service_type='LOCAL', contact=self.contact_my)
+        self.assertEqual(ship2.cost(), None)
 
 class SurfaceTestCaseNormal(BaseTestCase):
     def test_shipping1(self):
