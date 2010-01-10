@@ -19,11 +19,33 @@ from shipping.modules.base import BaseShipper
 import logging
 log = logging.getLogger('singpost.shipper')
 
+class CountryFilter(object):
+    def __init__(self, include=['*'], exclude=None):
+        self.include = include
+        self.exclude = exclude
+
+    def country_is_included(self, country):
+        country = country.iso2_code
+
+        if not self.exclude == None and len(self.exclude) \
+            and country in self.exclude:
+            return False
+
+        if not self.include == None and len(self.include) \
+            and ('*' in self.include or country in self.include):
+            return True
+
+        log.error('failed to determine inclusion status of country:' \
+            'country=%s, inc=%s, exc=%s' \
+            % (country, repr(self.include), repr(self.exclude)))
+        return False
+
 class BaseWeightCostMap(object):
-    def __init__(self, map):
+    def __init__(self, map, filter=CountryFilter()):
         self.map = map
 
         self.maximum_item_weight = None
+        self.filter = filter
 
     def get_lowest_cost(self):
         return reduce(lambda x, y: x if x < y else y, self.map)[1]
@@ -157,7 +179,8 @@ WEIGHT_COST_MAPS = {
             (500,	Decimal('1.50')),
             (1000,	Decimal('2.55')),
             (2000,	Decimal('3.35'))
-        )
+        ), \
+        filter = CountryFilter(include=('SG',))
     ),
     'SURFACE': ImpliedTieredWeightCostMap(
         map=(
@@ -226,6 +249,10 @@ class Shipper(BaseShipper):
         assert(self._calculated)
 
         wcm = WEIGHT_COST_MAPS[self.service_type]
+
+        if not wcm.filter.country_is_included(\
+            self.contact.shipping_address.country):
+            return None
 
         shipments = wcm.partitioned_shipments(self._weight(), self.cart)
 
