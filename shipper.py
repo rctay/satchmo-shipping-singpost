@@ -265,7 +265,7 @@ class Shipper(BaseShipper):
             return None
 
         shipments = tier.partitioned_shipments(self._weight(), self.cart)
-        if shipments == None:
+        if shipments == None or not len(shipments):
             return None
 
         total_cost = Decimal('0.00')
