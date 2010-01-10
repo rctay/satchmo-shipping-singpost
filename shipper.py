@@ -340,13 +340,13 @@ class Shipper(BaseShipper):
         """
         This is mainly helpful for debugging purposes
         """
-        return "SingPost"
+        return "SingPost (%s)" % self.service_type_description
 
     def description(self):
         """
         A basic description that will be displayed to the user when selecting their shipping options
         """
-        return _("SingPost Shipping")
+        return _("SingPost Shipping (%s)" % self.service_type_description)
 
     def _weight_for_shipment(self, shipment):
         total_weight = Decimal('0')
@@ -402,7 +402,7 @@ class Shipper(BaseShipper):
         """
         Describes the actual delivery service (Mail, FedEx, DHL, UPS, etc)
         """
-        return _('SingPost')
+        return _('SingPost (%s)' % self.service_type_description)
 
     def expectedDelivery(self):
         """
