@@ -402,7 +402,7 @@ class Shipper(BaseShipper):
         """
         Describes the actual delivery service (Mail, FedEx, DHL, UPS, etc)
         """
-        return _('SingPost (%s)' % self.service_type_description)
+        return _('SingPost')
 
     def expectedDelivery(self):
         """
