@@ -218,7 +218,7 @@ class LocalShippingTestCase(BaseTestCase):
         ship2 = singpost(cart=cart1, service_type='LOCAL', contact=self.contact_my)
         self.assertEqual(ship2.cost(), None)
 
-class SurfaceTestCaseNormal(BaseTestCase):
+class SurfaceTestCase(BaseTestCase):
     def test_shipping1(self):
         p1 = self.product_dress
         p2 = self.product_blouse
