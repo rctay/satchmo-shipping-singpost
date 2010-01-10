@@ -340,7 +340,7 @@ class Shipper(BaseShipper):
         """
         This is mainly helpful for debugging purposes
         """
-        return "SingPost - %s" % self.service_type_description
+        return self.description()
 
     def description(self):
         """
