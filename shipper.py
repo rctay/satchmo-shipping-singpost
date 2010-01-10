@@ -20,6 +20,13 @@ import logging
 log = logging.getLogger('singpost.shipper')
 
 class CountryFilter(object):
+    """
+    Rules:
+    1. If a country is found in exclude, return False.
+    2. If include tuple is not empty,
+        a. If a country is found in include, return True.
+        b. return False.
+    """
     def __init__(self, include=('*'), exclude=None):
         self.include = include
         self.exclude = exclude
@@ -29,9 +36,11 @@ class CountryFilter(object):
             and country.iso2_code in self.exclude:
             return False
 
-        if not self.include == None and len(self.include) \
-            and ('*' in self.include or country.iso2_code in self.include):
-            return True
+        if not self.include == None and len(self.include):
+            if '*' in self.include or country.iso2_code in self.include:
+                return True
+            else:
+                return False
 
         log.error('excluding country:' \
             'country=%s, inc=%s, exc=%s' \
