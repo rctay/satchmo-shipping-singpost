@@ -40,18 +40,18 @@ class CountryFilter(object):
             % (country, repr(self.include), repr(self.exclude)))
         return False
 
-class BaseWeightCostMap(object):
-    def __init__(self, map, filter=CountryFilter()):
-        self.map = map
+class BaseCostTiers(object):
+    def __init__(self, tiers, filter=CountryFilter()):
+        self.tiers = tiers
 
         self.maximum_item_weight = None
         self.filter = filter
 
     def get_lowest_cost(self):
-        return reduce(lambda x, y: x if x < y else y, self.map)[1]
+        return reduce(lambda x, y: x if x < y else y, self.tiers)[1]
 
     def get_heaviest_weight_tier(self):
-        return reduce(lambda x, y: x if x > y else y, self.map)
+        return reduce(lambda x, y: x if x > y else y, self.tiers)
 
     def get_heaviest_weight(self):
         return self.get_heaviest_weight_tier()[0]
@@ -65,16 +65,16 @@ class BaseWeightCostMap(object):
     def partitioned_shipments(self, total_weight, cart):
         raise NotImplementedError
 
-class TieredWeightCostMap(BaseWeightCostMap):
+class ExplicitCostTiers(BaseCostTiers):
     def __init__(self, *args, **kwargs):
-        super(TieredWeightCostMap, self).__init__(*args, **kwargs)
+        super(ExplicitCostTiers, self).__init__(*args, **kwargs)
 
         self.maximum_item_weight = self.get_heaviest_weight()
 
     """
     The weight of a single must fall within specified "tiers", therefore the
     maximum allowed weight of a single item is the heaviest weight
-    specified in map.
+    specified in tiers.
     """
     def cost_for_shipment_with_weight(self, shipment_weight):
         if (shipment_weight > self.maximum_item_weight):
@@ -86,7 +86,7 @@ class TieredWeightCostMap(BaseWeightCostMap):
         prev = None
         result_cost = None
 
-        for weight, cost in self.map:
+        for weight, cost in self.tiers:
             if shipment_weight <= Decimal(weight):
                 if prev:
                     if shipment_weight > Decimal(prev):
@@ -135,15 +135,15 @@ class TieredWeightCostMap(BaseWeightCostMap):
 
         return shipments
 
-class ImpliedTieredWeightCostMap(TieredWeightCostMap):
+class ImplicitCostTiers(ExplicitCostTiers):
     """
     implied_tier --- A tuple of (weight_step, Decimal(n)) form. When weight
-    exceeds the last specified weight in map, cost is added for every
+    exceeds the last specified weight in tiers, cost is added for every
     additional weight_step.
     """
     def __init__(self, implied_tier, maximum_item_weight,
         *args, **kwargs):
-        super(TieredWeightCostMap, self).__init__(*args, **kwargs)
+        super(ExplicitCostTiers, self).__init__(*args, **kwargs)
 
         self.maximum_item_weight = maximum_item_weight
         self.implied_tier = implied_tier
@@ -155,7 +155,7 @@ class ImpliedTieredWeightCostMap(TieredWeightCostMap):
             prev = None
             result_cost = None
 
-            for weight, cost in self.map:
+            for weight, cost in self.tiers:
                 if shipment_weight <= Decimal(weight):
                     if prev:
                         if shipment_weight > Decimal(prev):
@@ -172,9 +172,9 @@ class ImpliedTieredWeightCostMap(TieredWeightCostMap):
 
         return result_cost
 
-WEIGHT_COST_MAPS = {
-    'LOCAL': TieredWeightCostMap(
-        map=(
+SERVICE_TIERS = {
+    'LOCAL': ExplicitCostTiers(
+        tiers=(
             (40,	Decimal('0.50')),
             (100,	Decimal('0.80')),
             (250,	Decimal('1.00')),
@@ -184,8 +184,8 @@ WEIGHT_COST_MAPS = {
         ),
         filter = CountryFilter(include=('SG',))
     ),
-    'SURFACE': ImpliedTieredWeightCostMap(
-        map=(
+    'SURFACE': ImplicitCostTiers(
+        tiers=(
             (20,	Decimal('0.50')),
             (50,	Decimal('0.70')),
             (100,	Decimal('1.00'))
@@ -234,14 +234,14 @@ class Shipper(BaseShipper):
 
         return total_weight
 
-    def _cost_for_shipment(self, shipment, wcm):
+    def _cost_for_shipment(self, shipment, tier):
         shipment_weight = self._weight_for_shipment(shipment)
 
-        result_cost = wcm.cost_for_shipment_with_weight(shipment_weight)
+        result_cost = tier.cost_for_shipment_with_weight(shipment_weight)
 
         # use the lightest class
         if result_cost is None:
-            result_cost = wcm.get_lowest_cost()
+            result_cost = tier.get_lowest_cost()
 
         return result_cost
 
@@ -251,13 +251,13 @@ class Shipper(BaseShipper):
         """
         assert(self._calculated)
 
-        wcm = WEIGHT_COST_MAPS[self.service_type]
+        tier = SERVICE_TIERS[self.service_type]
 
-        if not wcm.filter.country_is_included(
+        if not tier.filter.country_is_included(
             self.contact.shipping_address.country):
             return None
 
-        shipments = wcm.partitioned_shipments(self._weight(), self.cart)
+        shipments = tier.partitioned_shipments(self._weight(), self.cart)
 
         if shipments == None:
             return None
@@ -265,7 +265,7 @@ class Shipper(BaseShipper):
         total_cost = Decimal('0.00')
 
         for shipment in shipments:
-            total_cost += self._cost_for_shipment(shipment, wcm)
+            total_cost += self._cost_for_shipment(shipment, tier)
 
         return total_cost
 
