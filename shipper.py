@@ -196,6 +196,15 @@ SERVICE_TIERS = {
     ),
 }
 
+def resolve_tier(service_type, contact):
+    tier = SERVICE_TIERS[service_type]
+
+    if not tier.filter.country_is_included(
+        contact.shipping_address.country):
+        return None
+
+    return tier
+
 class Shipper(BaseShipper):
     id = "SingPost"
 
@@ -251,9 +260,8 @@ class Shipper(BaseShipper):
         """
         assert(self._calculated)
 
-        tier = SERVICE_TIERS[self.service_type]
-        if not tier.filter.country_is_included(
-            self.contact.shipping_address.country):
+        tier = resolve_tier(self.service_type, self.contact)
+        if tier == None:
             return None
 
         shipments = tier.partitioned_shipments(self._weight(), self.cart)
