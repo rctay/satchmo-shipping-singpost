@@ -334,7 +334,7 @@ class Shipper(BaseShipper):
         self.service_type_code = service_type[0]
         self.service_type_description = service_type[1]
 
-        self.id = self.method()
+        self.id = self.service_type_code
 
     def __str__(self):
         """
