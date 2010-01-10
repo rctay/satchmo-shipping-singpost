@@ -330,10 +330,11 @@ def resolve_tier(service_type, contact):
 class Shipper(BaseShipper):
     id = "SingPost"
 
-    def __init__(self, cart=None, contact=None, service_type='LOCAL'):
+    def __init__(self, cart=None, contact=None, service_type=None):
         super(Shipper, self).__init__(cart, contact)
 
-        self.service_type = service_type
+        self.service_type_code = service_type[0]
+        self.service_type_description = service_type[1]
 
     def __str__(self):
         """
@@ -382,7 +383,7 @@ class Shipper(BaseShipper):
         """
         assert(self._calculated)
 
-        tier = resolve_tier(self.service_type, self.contact)
+        tier = resolve_tier(self.service_type_code, self.contact)
         if tier == None:
             return None
 

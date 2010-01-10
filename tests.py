@@ -195,14 +195,14 @@ class LocalShippingTestCase(BaseTestCase):
 
         cart1 = Cart.objects.create(site=self.site)
         cart1.add_item(p1, 1)
-        ship1 = singpost(cart=cart1, service_type='LOCAL', contact=self.contact_sg)
+        ship1 = singpost(cart=cart1, service_type=('LOCAL',''), contact=self.contact_sg)
         self.assertTrue(cart1.is_shippable)
         self.assertEqual(ship1._weight(), Decimal('315'))
         self.assertEqual(ship1.cost(), Decimal('1.50'))
 
         cart2 = Cart.objects.create(site=self.site)
         cart2.add_item(p1, 3)
-        ship2 = singpost(cart=cart2, service_type='LOCAL', contact=self.contact_sg)
+        ship2 = singpost(cart=cart2, service_type=('LOCAL',''), contact=self.contact_sg)
         self.assertTrue(cart2.is_shippable)
         self.assertEqual(ship2._weight(), Decimal('945'))
         self.assertEqual(ship2.cost(), Decimal('2.55'))
@@ -217,7 +217,7 @@ class LocalShippingTestCase(BaseTestCase):
 
         cart1 = Cart.objects.create(site=self.site)
         cart1.add_item(p1, 1)
-        ship1 = singpost(cart=cart1, service_type='LOCAL', contact=self.contact_sg)
+        ship1 = singpost(cart=cart1, service_type=('LOCAL',''), contact=self.contact_sg)
         self.assertTrue(cart1.is_shippable)
         self.assertEqual(ship1._weight(), Decimal('1.6'))
         self.assertEqual(ship1.cost(), Decimal('0.50'))
@@ -229,7 +229,7 @@ class LocalShippingTestCase(BaseTestCase):
         # should split into 2 shipments: [6, 3]
         cart1 = Cart.objects.create(site=self.site)
         cart1.add_item(p1, 9)
-        ship1 = singpost(cart=cart1, service_type='LOCAL', contact=self.contact_sg)
+        ship1 = singpost(cart=cart1, service_type=('LOCAL',''), contact=self.contact_sg)
         self.assertTrue(cart1.is_shippable)
         self.assertEqual(ship1._weight(), Decimal('2835'))
         self.assertEqual(ship1.cost(), Decimal('5.90'))
@@ -238,7 +238,7 @@ class LocalShippingTestCase(BaseTestCase):
         cart2 = Cart.objects.create(site=self.site)
         cart2.add_item(p1, 9)
         cart2.add_item(p2, 10)
-        ship2 = singpost(cart=cart2, service_type='LOCAL', contact=self.contact_sg)
+        ship2 = singpost(cart=cart2, service_type=('LOCAL',''), contact=self.contact_sg)
         self.assertTrue(cart2.is_shippable)
         self.assertEqual(ship2._weight(), Decimal('3985'))
         self.assertEqual(ship2.cost(), Decimal('7.70'))
@@ -253,7 +253,7 @@ class LocalShippingTestCase(BaseTestCase):
             weight='2001', weight_units='gms')
         cart3 = Cart.objects.create(site=self.site)
         cart3.add_item(p3, 1)
-        ship3 = singpost(cart=cart3, service_type='LOCAL', contact=self.contact_sg)
+        ship3 = singpost(cart=cart3, service_type=('LOCAL',''), contact=self.contact_sg)
         self.assertTrue(cart3.is_shippable)
         self.assertEqual(ship3._weight(), Decimal('2001'))
         self.assertEqual(ship3.cost(), None)
@@ -263,10 +263,10 @@ class LocalShippingTestCase(BaseTestCase):
         cart1 = Cart.objects.create(site=self.site)
         cart1.add_item(p1, 1)
 
-        ship1 = singpost(cart=cart1, service_type='LOCAL', contact=self.contact_sg)
+        ship1 = singpost(cart=cart1, service_type=('LOCAL',''), contact=self.contact_sg)
         self.assertEqual(ship1.cost(), Decimal('1.50'))
 
-        ship2 = singpost(cart=cart1, service_type='LOCAL', contact=self.contact_my)
+        ship2 = singpost(cart=cart1, service_type=('LOCAL',''), contact=self.contact_my)
         self.assertEqual(ship2.cost(), None)
 
 class SurfaceTestCase(BaseTestCase):
@@ -277,28 +277,28 @@ class SurfaceTestCase(BaseTestCase):
 
         cart1 = Cart.objects.create(site=self.site)
         cart1.add_item(p1, 1)
-        ship1 = singpost(cart=cart1, service_type='SURFACE', contact=self.contact_sg)
+        ship1 = singpost(cart=cart1, service_type=('SURFACE',''), contact=self.contact_sg)
         self.assertTrue(cart1.is_shippable)
         self.assertEqual(ship1._weight(), Decimal('42'))
         self.assertEqual(ship1.cost(), Decimal('0.70'))
 
         cart2 = Cart.objects.create(site=self.site)
         cart2.add_item(p2, 1)
-        ship2 = singpost(cart=cart2, service_type='SURFACE', contact=self.contact_sg)
+        ship2 = singpost(cart=cart2, service_type=('SURFACE',''), contact=self.contact_sg)
         self.assertTrue(cart2.is_shippable)
         self.assertEqual(ship2._weight(), Decimal('315'))
         self.assertEqual(ship2.cost(), Decimal('4.00'))
 
         cart3 = Cart.objects.create(site=self.site)
         cart3.add_item(p3, 1)
-        ship3 = singpost(cart=cart3, service_type='SURFACE', contact=self.contact_sg)
+        ship3 = singpost(cart=cart3, service_type=('SURFACE',''), contact=self.contact_sg)
         self.assertTrue(cart3.is_shippable)
         self.assertEqual(ship3._weight(), Decimal('115'))
         self.assertEqual(ship3.cost(), Decimal('2.00'))
 
         cart4 = Cart.objects.create(site=self.site)
         cart4.add_item(p1, 2)
-        ship4 = singpost(cart=cart4, service_type='SURFACE', contact=self.contact_th)
+        ship4 = singpost(cart=cart4, service_type=('SURFACE',''), contact=self.contact_th)
         self.assertTrue(cart4.is_shippable)
         self.assertEqual(ship4._weight(), Decimal('84'))
         self.assertEqual(ship4.cost(), Decimal('1.00'))
@@ -307,13 +307,13 @@ class SurfaceTestCase(BaseTestCase):
         cart1 = Cart.objects.create(site=self.site)
         cart1.add_item(self.product_dress, 1)
 
-        ship1 = singpost(cart=cart1, service_type='SURFACE', contact=self.contact_my)
+        ship1 = singpost(cart=cart1, service_type=('SURFACE',''), contact=self.contact_my)
         self.assertEqual(ship1.cost(), None)
 
-        ship2 = singpost(cart=cart1, service_type='SURFACE', contact=self.contact_bn)
+        ship2 = singpost(cart=cart1, service_type=('SURFACE',''), contact=self.contact_bn)
         self.assertEqual(ship2.cost(), None)
 
-        ship3 = singpost(cart=cart1, service_type='SURFACE', contact=self.contact_th)
+        ship3 = singpost(cart=cart1, service_type=('SURFACE',''), contact=self.contact_th)
         self.assertEqual(ship3.cost(), Decimal('0.70'))
 
 class AirTestCase(BaseTestCase):
@@ -321,7 +321,7 @@ class AirTestCase(BaseTestCase):
         cart1 = Cart.objects.create(site=self.site)
         cart1.add_item(self.product_dress, 1)
 
-        ship1 = singpost(cart=cart1, service_type='AIR', contact=self.contact_sg)
+        ship1 = singpost(cart=cart1, service_type=('AIR',''), contact=self.contact_sg)
         self.assertEqual(ship1.cost(), None)
 
     def test_zone1(self):
@@ -329,14 +329,14 @@ class AirTestCase(BaseTestCase):
 
         cart1 = Cart.objects.create(site=self.site)
         cart1.add_item(p1, 1)
-        ship1 = singpost(cart=cart1, service_type='AIR', contact=self.contact_my)
+        ship1 = singpost(cart=cart1, service_type=('AIR',''), contact=self.contact_my)
         self.assertTrue(cart1.is_shippable)
         self.assertEqual(ship1._weight(), Decimal('42'))
         self.assertEqual(ship1.cost(), Decimal('0.55'))
 
         cart2 = Cart.objects.create(site=self.site)
         cart2.add_item(self.product_blouse, 1)
-        ship2 = singpost(cart=cart2, service_type='AIR', contact=self.contact_bn)
+        ship2 = singpost(cart=cart2, service_type=('AIR',''), contact=self.contact_bn)
         self.assertTrue(cart2.is_shippable)
         self.assertEqual(ship2._weight(), Decimal('315'))
         self.assertEqual(ship2.cost(), Decimal('3.85'))
@@ -344,7 +344,7 @@ class AirTestCase(BaseTestCase):
     def test_zone2(self):
         cart1 = Cart.objects.create(site=self.site)
         cart1.add_item(self.product_dress, 1)
-        ship1 = singpost(cart=cart1, service_type='AIR', contact=self.contact_as)
+        ship1 = singpost(cart=cart1, service_type=('AIR',''), contact=self.contact_as)
         self.assertTrue(cart1.is_shippable)
         self.assertEqual(ship1._weight(), Decimal('42'))
         self.assertEqual(ship1.cost(), Decimal('1.40'))
@@ -352,14 +352,14 @@ class AirTestCase(BaseTestCase):
     def test_zone3(self):
         cart1 = Cart.objects.create(site=self.site)
         cart1.add_item(self.product_dress, 1)
-        ship1 = singpost(cart=cart1, service_type='AIR', contact=self.contact_au)
+        ship1 = singpost(cart=cart1, service_type=('AIR',''), contact=self.contact_au)
         self.assertTrue(cart1.is_shippable)
         self.assertEqual(ship1._weight(), Decimal('42'))
         self.assertEqual(ship1.cost(), Decimal('2.15'))
 
         cart2 = Cart.objects.create(site=self.site)
         cart2.add_item(self.product_dress, 1)
-        ship2 = singpost(cart=cart2, service_type='AIR', contact=self.contact_jo)
+        ship2 = singpost(cart=cart2, service_type=('AIR',''), contact=self.contact_jo)
         self.assertTrue(cart2.is_shippable)
         self.assertEqual(ship2._weight(), Decimal('42'))
         self.assertEqual(ship2.cost(), Decimal('2.15'))
