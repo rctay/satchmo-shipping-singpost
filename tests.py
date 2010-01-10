@@ -65,7 +65,7 @@ class BaseTestCase(unittest.TestCase):
                 site=Site.objects.get_current(),
                 name='Denim Skirt',
                 slug='denim-skirt',
-                items_in_stock=10,
+                items_in_stock=30,
                 weight='115', weight_units='gms')
 
         return p
@@ -131,13 +131,7 @@ class LocalTestCaseNormal(BaseTestCase):
 class LocalTestCaseHeavy(BaseTestCase):
     def test_shipping1(self):
         p1 = self.product_blouse
-
-        p2 = Product.objects.create(
-            site=self.site,
-            name='Shoulder Blouse3',
-            slug='shoulder-blouse3',
-            items_in_stock=10,
-            weight='200', weight_units='gms')
+        p2 = self.product_skirt
 
         # should split into 2 shipments: [6, 3]
         cart1 = Cart.objects.create(site=self.site)
@@ -147,13 +141,13 @@ class LocalTestCaseHeavy(BaseTestCase):
         self.assertEqual(ship1._weight(), Decimal('2835'))
         self.assertEqual(ship1.cost(), Decimal('5.90'))
 
-        # should split into 2 shipments: [6, 3p1+5p2, 1p2]
+        # should split into 2 shipments: [6, 3p1+9p2, 1p2]
         cart2 = Cart.objects.create(site=self.site)
         cart2.add_item(p1, 9)
-        cart2.add_item(p2, 6)
+        cart2.add_item(p2, 10)
         ship2 = singpost(cart=cart2, service_type='LOCAL', contact=self.contact_sg)
         self.assertTrue(cart2.is_shippable)
-        self.assertEqual(ship2._weight(), Decimal('4035'))
+        self.assertEqual(ship2._weight(), Decimal('3985'))
         self.assertEqual(ship2.cost(), Decimal('7.70'))
 
         # exceeds max weight and can't be split
