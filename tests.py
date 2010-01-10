@@ -35,6 +35,7 @@ class BaseTestCase(unittest.TestCase):
         self.contact_th = self._get_contact_th()
         self.contact_au = self._get_contact_au()
         self.contact_as = self._get_contact_as()
+        self.contact_jo = self._get_contact_jo()
 
     def _get_product_blouse(self):
         try:
@@ -166,6 +167,22 @@ class BaseTestCase(unittest.TestCase):
                     iso2_code='AS', iso3_code='ASM',
                     name='AMERICAN SAMOA', printable_name='American Samoa',
                     continent='OC'
+                )
+            )
+
+        return contact
+
+    def _get_contact_jo(self):
+        try:
+            contact = Contact.objects.get(first_name='Iam', last_name='Jordanian')
+        except ObjectDoesNotExist:
+            contact = Contact.objects.create(first_name='Iam', last_name='Jordanian')
+            contact.addressbook_set.create(street1='Islamic College Street',
+                city='Amman', postal_code='11180',
+                country=Country.objects.create(
+                    iso2_code='JO', iso3_code='JOR',
+                    name='JORDAN', printable_name='Jordan',
+                    continent='AS'
                 )
             )
 
@@ -339,3 +356,10 @@ class AirTestCase(BaseTestCase):
         self.assertTrue(cart1.is_shippable)
         self.assertEqual(ship1._weight(), Decimal('42'))
         self.assertEqual(ship1.cost(), Decimal('2.15'))
+
+        cart2 = Cart.objects.create(site=self.site)
+        cart2.add_item(self.product_dress, 1)
+        ship2 = singpost(cart=cart2, service_type='AIR', contact=self.contact_jo)
+        self.assertTrue(cart2.is_shippable)
+        self.assertEqual(ship2._weight(), Decimal('42'))
+        self.assertEqual(ship2.cost(), Decimal('2.15'))
