@@ -78,23 +78,19 @@ class LocalTestCaseNormal(unittest.TestCase):
         self.site = Site.objects.get_current()
 
     def test_shipping(self):
-        cart1 = Cart.objects.create(site=self.site)
-        cart2 = Cart.objects.create(site=self.site)
-
         p1 = get_product_blouse()
-
-        cart1.add_item(p1, 1)
-        cart2.add_item(p1, 3)
-
-        ship1 = singpost(cart=cart1, service_type='LOCAL', contact=get_sg_contact())
-        ship2 = singpost(cart=cart2, service_type='LOCAL', contact=get_sg_contact())
-
         self.assertTrue(p1.is_shippable)
 
+        cart1 = Cart.objects.create(site=self.site)
+        cart1.add_item(p1, 1)
+        ship1 = singpost(cart=cart1, service_type='LOCAL', contact=get_sg_contact())
         self.assertTrue(cart1.is_shippable)
         self.assertEqual(ship1._weight(), Decimal('315'))
         self.assertEqual(ship1.cost(), Decimal('1.50'))
 
+        cart2 = Cart.objects.create(site=self.site)
+        cart2.add_item(p1, 3)
+        ship2 = singpost(cart=cart2, service_type='LOCAL', contact=get_sg_contact())
         self.assertTrue(cart2.is_shippable)
         self.assertEqual(ship2._weight(), Decimal('945'))
         self.assertEqual(ship2.cost(), Decimal('2.55'))
