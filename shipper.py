@@ -20,7 +20,7 @@ import logging
 log = logging.getLogger('singpost.shipper')
 
 class CountryFilter(object):
-    def __init__(self, include=['*'], exclude=None):
+    def __init__(self, include=('*'), exclude=None):
         self.include = include
         self.exclude = exclude
 
