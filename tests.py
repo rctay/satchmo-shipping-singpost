@@ -28,8 +28,8 @@ class BaseTestCase(unittest.TestCase):
         self.product_dress = self._get_product_dress()
         self.product_skirt = self._get_product_skirt()
 
-        self.contact_sg = self._get_sg_contact()
-        self.contact_my = self._get_my_contact()
+        self.contact_sg = self._get_contact_sg()
+        self.contact_my = self._get_contact_my()
 
     def _get_product_blouse(self):
         try:
@@ -70,31 +70,35 @@ class BaseTestCase(unittest.TestCase):
 
         return p
 
-    def _get_sg_contact(self):
+    def _get_contact_sg(self):
         try:
             contact = Contact.objects.get(first_name='Ahsia', last_name='Kia')
         except ObjectDoesNotExist:
             contact = Contact.objects.create(first_name='Ahsia', last_name='Kia')
-            country_sg = Country.objects.create(iso2_code='SG', iso3_code='SGP', \
-                name='SINGAPORE', printable_name='Singapore', \
-                continent='AS')
-            contact.addressbook_set.create(street1='1 Orchard Rd', \
-                city='Singapore', postal_code='123456', \
-                country=country_sg)
+            contact.addressbook_set.create(street1='1 Orchard Rd',
+                city='Singapore', postal_code='123456',
+                country=Country.objects.create(
+                    iso2_code='SG', iso3_code='SGP',
+                    name='SINGAPORE', printable_name='Singapore',
+                    continent='AS'
+                )
+            )
 
         return contact
 
-    def _get_my_contact(self):
+    def _get_contact_my(self):
         try:
             contact = Contact.objects.get(first_name='Iam', last_name='Malaysian')
         except ObjectDoesNotExist:
             contact = Contact.objects.create(first_name='Iam', last_name='Malaysian')
-            country_my = Country.objects.create(iso2_code='MY', iso3_code='MYS', \
-                name='MALAYSIA', printable_name='Malaysia', \
-                continent='AS')
-            contact.addressbook_set.create(street1='Jalan P Ramlee', \
-                city='Kuala Lumpur', postal_code='50250', \
-                country=country_my)
+            contact.addressbook_set.create(street1='Jalan P Ramlee',
+                city='Kuala Lumpur', postal_code='50250',
+                country=Country.objects.create(
+                    iso2_code='MY', iso3_code='MYS',
+                    name='MALAYSIA', printable_name='Malaysia',
+                    continent='AS'
+                )
+            )
 
         return contact
 
