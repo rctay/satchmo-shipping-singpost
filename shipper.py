@@ -25,14 +25,16 @@ class CountryFilter(object):
 
     A positive match for countries and continents (referred to as x) occurs
     when:
-    1. The relevant tuple is not empty, and
-    2. x is found found in the relevant tuple
+    1. The relevant tuple is None, OR
+
+    2i). The relevant tuple is not empty, AND
+    2ii). x is found found in the relevant tuple
 
     If there is a positive match for both the country and continent, return
     True.
     """
-    def __init__(self, include=('*'), exclude=None,
-        include_continent=('*')):
+    def __init__(self, include=None, exclude=None,
+        include_continent=None):
         self.include = include
         self.exclude = exclude
 
@@ -46,13 +48,13 @@ class CountryFilter(object):
         match_continent = False
         match_country = False
 
-        if not self.include_continent == None and len(self.include_continent):
-            if '*' in self.include_continent or country.continent in self.include_continent:
-                match_continent = True
+        if self.include_continent == None or \
+            (len(self.include_continent) and country.continent in self.include_continent):
+            match_continent = True
 
-        if not self.include == None and len(self.include):
-            if '*' in self.include or country.iso2_code in self.include:
-                match_country = True
+        if self.include == None or \
+            (len(self.include) and country.iso2_code in self.include):
+            match_country = True
 
         return match_continent and match_country
 
