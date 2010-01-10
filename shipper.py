@@ -258,8 +258,49 @@ SERVICE_TIERS = {
                 ),
                 implied_tier=(10, Decimal('0.25')),
                 filter = CountryFilter(
-                    include_continent=('AS', 'OC'),
-                    exclude=('AU', 'NZ', 'JP')
+                    include=(
+                        'AS', # American Samoa
+                        'KI', # Kiribati
+                        'NR', # Nauru
+                        'SB', # Solomon Islands
+                        'BD', # Bangladesh
+                        'KP', # Korea, Dem. People's Rep. of
+                        'NP', # Nepal
+                        'LK', # Sri Lanka
+                        'BT', # Bhutan
+                        'KR', # Korea, Rep. of (South)
+                        'NC', # New Caledonia
+                        'TW', # Taiwan
+                        'KH', # Cambodia
+                        'LA', # Lao
+                        'MP', # Northern Mariana Islands
+                        'TH', # Thailand
+                        'CN', # China
+                        'MO', # Macao
+                        'PK', # Pakistan
+                        'TL', # Timor-Leste
+                        'FJ', # Fiji
+                        'MV', # Maldives
+                        'PW', # Palau
+                        'TO', # Tonga
+                        'PF', # French Polynesia
+                        'MH', # Marshall Islands
+                        'PG', # Papua New Guinea
+                        'TV', # Tuvalu
+                        'GU', # Guam
+                        'FM', # Micronesia, Fed. States of
+                        'PH', # Philippines
+                        'VU', # Vanuatu
+                        'HK', # Hong Kong
+                        'MN', # Mongolia
+                        'PN', # Pitcairn Islands
+                        'VN', # Viet Nam
+                        'IN', # India
+                        'MM', # Myanmar
+                        'WS', # Samoa
+                        'WF', # Wallis and Futuna
+                        'ID', # Indonesia
+                    )
                 )
             ),
             ZonedCostTiers(
