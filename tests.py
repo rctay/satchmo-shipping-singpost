@@ -33,6 +33,8 @@ class BaseTestCase(unittest.TestCase):
         self.contact_my = self._get_contact_my()
         self.contact_bn = self._get_contact_bn()
         self.contact_th = self._get_contact_th()
+        self.contact_au = self._get_contact_au()
+        self.contact_as = self._get_contact_as()
 
     def _get_product_blouse(self):
         try:
@@ -132,6 +134,38 @@ class BaseTestCase(unittest.TestCase):
                     iso2_code='TH', iso3_code='THA',
                     name='THAILAND', printable_name='Thailand',
                     continent='AS'
+                )
+            )
+
+        return contact
+
+    def _get_contact_au(self):
+        try:
+            contact = Contact.objects.get(first_name='Iam', last_name='Australian')
+        except ObjectDoesNotExist:
+            contact = Contact.objects.create(first_name='Iam', last_name='Australian')
+            contact.addressbook_set.create(street1='100 St Kilda Rd',
+                city='Melbourne', state='Victoria', postal_code='3004',
+                country=Country.objects.create(
+                    iso2_code='AU', iso3_code='AUS',
+                    name='AUSTRALIA', printable_name='Australia',
+                    continent='OC'
+                )
+            )
+
+        return contact
+
+    def _get_contact_as(self):
+        try:
+            contact = Contact.objects.get(first_name='Iam', last_name='Samoan')
+        except ObjectDoesNotExist:
+            contact = Contact.objects.create(first_name='Iam', last_name='Samoan')
+            contact.addressbook_set.create(street1='Pago Pago',
+                city='Pago Pago', postal_code='96799',
+                country=Country.objects.create(
+                    iso2_code='AS', iso3_code='ASM',
+                    name='AMERICAN SAMOA', printable_name='American Samoa',
+                    continent='OC'
                 )
             )
 
@@ -289,3 +323,19 @@ class AirTestCase(BaseTestCase):
         self.assertTrue(cart2.is_shippable)
         self.assertEqual(ship2._weight(), Decimal('315'))
         self.assertEqual(ship2.cost(), Decimal('3.85'))
+
+    def test_zone2(self):
+        cart1 = Cart.objects.create(site=self.site)
+        cart1.add_item(self.product_dress, 1)
+        ship1 = singpost(cart=cart1, service_type='AIR', contact=self.contact_as)
+        self.assertTrue(cart1.is_shippable)
+        self.assertEqual(ship1._weight(), Decimal('42'))
+        self.assertEqual(ship1.cost(), Decimal('1.40'))
+
+    def test_zone2(self):
+        cart1 = Cart.objects.create(site=self.site)
+        cart1.add_item(self.product_dress, 1)
+        ship1 = singpost(cart=cart1, service_type='AIR', contact=self.contact_au)
+        self.assertTrue(cart1.is_shippable)
+        self.assertEqual(ship1._weight(), Decimal('42'))
+        self.assertEqual(ship1.cost(), None)

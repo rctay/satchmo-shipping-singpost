@@ -252,6 +252,16 @@ SERVICE_TIERS = {
                 implied_tier=(100, Decimal('1.00')),
                 filter = CountryFilter(include=('MY', 'BN'))
             ),
+            ZonedCostTiers(
+                tiers=(
+                    (20,	Decimal('0.65')),
+                ),
+                implied_tier=(10, Decimal('0.25')),
+                filter = CountryFilter(
+                    include_continent=('AS', 'OC'),
+                    exclude=('AU', 'NZ', 'JP')
+                )
+            ),
         ),
         maximum_item_weight=2000,
         filter = CountryFilter(exclude=('SG'))
