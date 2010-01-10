@@ -98,8 +98,8 @@ class BaseTestCase(unittest.TestCase):
 
         return contact
 
-class LocalTestCaseNormal(BaseTestCase):
-    def test_shipping(self):
+class LocalShippingTestCase(BaseTestCase):
+    def test_simple_shipping(self):
         p1 = self.product_blouse
         self.assertTrue(p1.is_shippable)
 
@@ -128,8 +128,7 @@ class LocalTestCaseNormal(BaseTestCase):
         ship2 = singpost(cart=cart1, service_type='LOCAL', contact=self.contact_my)
         self.assertEqual(ship2.cost(), None)
 
-class LocalTestCaseHeavy(BaseTestCase):
-    def test_shipping1(self):
+    def test_partitioned_shipping(self):
         p1 = self.product_blouse
         p2 = self.product_skirt
 
@@ -150,6 +149,7 @@ class LocalTestCaseHeavy(BaseTestCase):
         self.assertEqual(ship2._weight(), Decimal('3985'))
         self.assertEqual(ship2.cost(), Decimal('7.70'))
 
+    def test_heavy_item(self):
         # exceeds max weight and can't be split
         p3 = Product.objects.create(
             site=self.site,
@@ -164,8 +164,7 @@ class LocalTestCaseHeavy(BaseTestCase):
         self.assertEqual(ship3._weight(), Decimal('2001'))
         self.assertEqual(ship3.cost(), None)
 
-class LocalTestCaseLight(BaseTestCase):
-    def test_shipping1(self):
+    def test_simple_shipping2(self):
         p1 = Product.objects.create(
             site=self.site,
             name='Stipple Sponge',
