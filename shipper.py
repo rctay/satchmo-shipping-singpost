@@ -143,7 +143,7 @@ class ImplicitCostTiers(ExplicitCostTiers):
     """
     def __init__(self, implied_tier, maximum_item_weight,
         *args, **kwargs):
-        super(ExplicitCostTiers, self).__init__(*args, **kwargs)
+        super(ImplicitCostTiers, self).__init__(*args, **kwargs)
 
         self.maximum_item_weight = maximum_item_weight
         self.implied_tier = implied_tier
