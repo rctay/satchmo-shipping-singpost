@@ -23,18 +23,30 @@ class CountryFilter(object):
     """
     Rules:
     1. If a country is found in exclude, return False.
-    2. If include tuple is not empty,
+    2. If include_continent tuple is not empty,
+        i. If a country's continent is found in include_continent, return True.
+        ii. return False.
+    3. If include tuple is not empty,
         i. If a country is found in include, return True.
         ii. return False.
     """
-    def __init__(self, include=('*'), exclude=None):
+    def __init__(self, include=('*'), exclude=None,
+        include_continent=('*')):
         self.include = include
         self.exclude = exclude
+
+        self.include_continent = include_continent
 
     def country_is_included(self, country):
         if not self.exclude == None and len(self.exclude) \
             and country.iso2_code in self.exclude:
             return False
+
+        if not self.include_continent == None and len(self.include_continent):
+            if '*' in self.include_continent or country.continent in self.include_continent:
+                return True
+            else:
+                return False
 
         if not self.include == None and len(self.include):
             if '*' in self.include or country.iso2_code in self.include:
