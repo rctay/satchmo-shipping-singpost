@@ -30,6 +30,7 @@ class BaseTestCase(unittest.TestCase):
 
         self.contact_sg = self._get_contact_sg()
         self.contact_my = self._get_contact_my()
+        self.contact_th = self._get_contact_th()
 
     def _get_product_blouse(self):
         try:
@@ -96,6 +97,22 @@ class BaseTestCase(unittest.TestCase):
                 country=Country.objects.create(
                     iso2_code='MY', iso3_code='MYS',
                     name='MALAYSIA', printable_name='Malaysia',
+                    continent='AS'
+                )
+            )
+
+        return contact
+
+    def _get_contact_th(self):
+        try:
+            contact = Contact.objects.get(first_name='Iam', last_name='Thai')
+        except ObjectDoesNotExist:
+            contact = Contact.objects.create(first_name='Iam', last_name='Thai')
+            contact.addressbook_set.create(street1='24 Sukhumvit',
+                city='Bangkok', postal_code='10110',
+                country=Country.objects.create(
+                    iso2_code='TH', iso3_code='THA',
+                    name='THAILAND', printable_name='Thailand',
                     continent='AS'
                 )
             )
@@ -212,7 +229,7 @@ class SurfaceTestCaseNormal(BaseTestCase):
 
         cart4 = Cart.objects.create(site=self.site)
         cart4.add_item(p1, 2)
-        ship4 = singpost(cart=cart4, service_type='SURFACE', contact=self.contact_sg)
+        ship4 = singpost(cart=cart4, service_type='SURFACE', contact=self.contact_th)
         self.assertTrue(cart4.is_shippable)
         self.assertEqual(ship4._weight(), Decimal('84'))
         self.assertEqual(ship4.cost(), Decimal('1.00'))
