@@ -24,8 +24,8 @@ class CountryFilter(object):
     Rules:
     1. If a country is found in exclude, return False.
     2. If include tuple is not empty,
-        a. If a country is found in include, return True.
-        b. return False.
+        i. If a country is found in include, return True.
+        ii. return False.
     """
     def __init__(self, include=('*'), exclude=None):
         self.include = include
