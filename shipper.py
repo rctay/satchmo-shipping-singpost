@@ -78,7 +78,8 @@ class TieredWeightCostMap(BaseWeightCostMap):
     """
     def cost_for_shipment_with_weight(self, shipment_weight):
         if (shipment_weight > self.maximum_item_weight):
-            log.error("shipment weight exceeds maximum allowed weight: weight=%d, max=%d" \
+            log.error("shipment weight exceeds maximum allowed weight: " \
+                "weight=%d, max=%d" \
                 % (shipment_weight, self.maximum_item_weight))
             return None
 
@@ -124,7 +125,8 @@ class TieredWeightCostMap(BaseWeightCostMap):
                         a_shipment = [cartitem]
                         the_weight = Decimal(cartitem.product.weight)
                     else:
-                        log.error("item exceeds max weight: name=%s, weight=%d" \
+                        log.error("item exceeds max weight: " \
+                            "name=%s, weight=%d" \
                             % (cartitem.product.name, cartitem.product.weight))
                         return None
 
