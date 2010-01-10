@@ -252,13 +252,11 @@ class Shipper(BaseShipper):
         assert(self._calculated)
 
         tier = SERVICE_TIERS[self.service_type]
-
         if not tier.filter.country_is_included(
             self.contact.shipping_address.country):
             return None
 
         shipments = tier.partitioned_shipments(self._weight(), self.cart)
-
         if shipments == None:
             return None
 
