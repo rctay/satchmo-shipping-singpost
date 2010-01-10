@@ -284,8 +284,8 @@ class AirTestCase(BaseTestCase):
         self.assertEqual(ship1.cost(), Decimal('0.55'))
 
         cart2 = Cart.objects.create(site=self.site)
-        cart2.add_item(p1, 2)
+        cart2.add_item(self.product_blouse, 1)
         ship2 = singpost(cart=cart2, service_type='AIR', contact=self.contact_bn)
         self.assertTrue(cart2.is_shippable)
-        self.assertEqual(ship2._weight(), Decimal('84'))
-        self.assertEqual(ship2.cost(), Decimal('0.85'))
+        self.assertEqual(ship2._weight(), Decimal('315'))
+        self.assertEqual(ship2.cost(), Decimal('3.85'))
