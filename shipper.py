@@ -307,10 +307,7 @@ SERVICE_TIERS = {
                 tiers=(
                     (20,	Decimal('1.10')),
                 ),
-                implied_tier=(10, Decimal('0.35')),
-                filter = CountryFilter(
-                    exclude=('SG','MY','BN')
-                )
+                implied_tier=(10, Decimal('0.35'))
             ),
         ),
         maximum_item_weight=2000,
