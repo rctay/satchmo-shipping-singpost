@@ -141,7 +141,7 @@ class ImpliedTieredWeightCostMap(TieredWeightCostMap):
     exceeds the last specified weight in map, cost is added for every
     additional weight_step.
     """
-    def __init__(self, implied_tier, maximum_item_weight, \
+    def __init__(self, implied_tier, maximum_item_weight,
         *args, **kwargs):
         super(TieredWeightCostMap, self).__init__(*args, **kwargs)
 
@@ -164,8 +164,8 @@ class ImpliedTieredWeightCostMap(TieredWeightCostMap):
                 else:
                     prev = weight
         else:
-            result = getcontext().divmod(\
-                Decimal(shipment_weight - max_tier[0]), \
+            result = getcontext().divmod(
+                Decimal(shipment_weight - max_tier[0]),
                 Decimal(self.implied_tier[0]))
             steps = result[0] + (1 if result[1] > Decimal('0') else 0)
             result_cost = max_tier[1] + steps * self.implied_tier[1]
@@ -181,7 +181,7 @@ WEIGHT_COST_MAPS = {
             (500,	Decimal('1.50')),
             (1000,	Decimal('2.55')),
             (2000,	Decimal('3.35'))
-        ), \
+        ),
         filter = CountryFilter(include=('SG',))
     ),
     'SURFACE': ImpliedTieredWeightCostMap(
@@ -189,8 +189,8 @@ WEIGHT_COST_MAPS = {
             (20,	Decimal('0.50')),
             (50,	Decimal('0.70')),
             (100,	Decimal('1.00'))
-        ), \
-        implied_tier=(100, Decimal('1.00')), \
+        ),
+        implied_tier=(100, Decimal('1.00')),
         maximum_item_weight=2000
     ),
 }
@@ -252,7 +252,7 @@ class Shipper(BaseShipper):
 
         wcm = WEIGHT_COST_MAPS[self.service_type]
 
-        if not wcm.filter.country_is_included(\
+        if not wcm.filter.country_is_included(
             self.contact.shipping_address.country):
             return None
 
