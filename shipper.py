@@ -21,14 +21,15 @@ log = logging.getLogger('singpost.shipper')
 
 class CountryFilter(object):
     """
-    Rules:
-    1. If a country is found in exclude, return False.
-    2. If include_continent tuple is not empty,
-        i. If a country's continent is found in include_continent, return True.
-        ii. return False.
-    3. If include tuple is not empty,
-        i. If a country is found in include, return True.
-        ii. return False.
+    If a country is found in the exclude tuple, return False immediately.
+
+    A positive match for countries and continents (referred to as x) occurs
+    when:
+    1. The relevant tuple is not empty, and
+    2. x is found found in the relevant tuple
+
+    If there is a positive match for both the country and continent, return
+    True.
     """
     def __init__(self, include=('*'), exclude=None,
         include_continent=('*')):
@@ -42,22 +43,18 @@ class CountryFilter(object):
             and country.iso2_code in self.exclude:
             return False
 
+        match_continent = False
+        match_country = False
+
         if not self.include_continent == None and len(self.include_continent):
             if '*' in self.include_continent or country.continent in self.include_continent:
-                return True
-            else:
-                return False
+                match_continent = True
 
         if not self.include == None and len(self.include):
             if '*' in self.include or country.iso2_code in self.include:
-                return True
-            else:
-                return False
+                match_country = True
 
-        log.error('excluding country:' \
-            'country=%s, inc=%s, exc=%s' \
-            % (country, repr(self.include), repr(self.exclude)))
-        return False
+        return match_continent and match_country
 
 class BaseCostTiers(object):
     def __init__(self, tiers, filter=CountryFilter()):
