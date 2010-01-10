@@ -328,13 +328,13 @@ def resolve_tier(service_type, contact):
     return tier
 
 class Shipper(BaseShipper):
-    id = "SingPost"
-
     def __init__(self, cart=None, contact=None, service_type=None):
         super(Shipper, self).__init__(cart, contact)
 
         self.service_type_code = service_type[0]
         self.service_type_description = service_type[1]
+
+        self.id = self.method()
 
     def __str__(self):
         """
