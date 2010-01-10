@@ -73,6 +73,20 @@ def get_sg_contact():
 
     return contact
 
+def get_my_contact():
+    try:
+        contact = Contact.objects.get(first_name='Iam', last_name='Malaysian')
+    except ObjectDoesNotExist:
+        contact = Contact.objects.create(first_name='Iam', last_name='Malaysian')
+        country_my = Country.objects.create(iso2_code='MY', iso3_code='MYS', \
+            name='MALAYSIA', printable_name='Malaysia', \
+            continent='AS')
+        contact.addressbook_set.create(street1='Jalan P Ramlee', \
+            city='Kuala Lumpur', postal_code='50250', \
+            country=country_my)
+
+    return contact
+
 class LocalTestCaseNormal(unittest.TestCase):
     def setUp(self):
         self.site = Site.objects.get_current()
@@ -94,6 +108,17 @@ class LocalTestCaseNormal(unittest.TestCase):
         self.assertTrue(cart2.is_shippable)
         self.assertEqual(ship2._weight(), Decimal('945'))
         self.assertEqual(ship2.cost(), Decimal('2.55'))
+
+    def test_country_filter(self):
+        p1 = get_product_blouse()
+        cart1 = Cart.objects.create(site=self.site)
+        cart1.add_item(p1, 1)
+
+        ship1 = singpost(cart=cart1, service_type='LOCAL', contact=get_sg_contact())
+        self.assertEqual(ship1.cost(), Decimal('1.50'))
+
+        ship2 = singpost(cart=cart1, service_type='LOCAL', contact=get_my_contact())
+        self.assertEqual(ship2.cost(), None)
 
 class LocalTestCaseHeavy(unittest.TestCase):
     def setUp(self):
