@@ -25,14 +25,12 @@ class CountryFilter(object):
         self.exclude = exclude
 
     def country_is_included(self, country):
-        country = country.iso2_code
-
         if not self.exclude == None and len(self.exclude) \
-            and country in self.exclude:
+            and country.iso2_code in self.exclude:
             return False
 
         if not self.include == None and len(self.include) \
-            and ('*' in self.include or country in self.include):
+            and ('*' in self.include or country.iso2_code in self.include):
             return True
 
         log.error('excluding country:' \
