@@ -191,7 +191,8 @@ WEIGHT_COST_MAPS = {
             (100,	Decimal('1.00'))
         ),
         implied_tier=(100, Decimal('1.00')),
-        maximum_item_weight=2000
+        maximum_item_weight=2000,
+        filter = CountryFilter(exclude=('MY', 'BN'))
     ),
 }
 

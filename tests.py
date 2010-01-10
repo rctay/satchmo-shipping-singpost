@@ -1,3 +1,4 @@
+# coding: utf-8
 """
 Copyright (C) 2009-2010, Tay Ray Chuan
 
@@ -30,6 +31,7 @@ class BaseTestCase(unittest.TestCase):
 
         self.contact_sg = self._get_contact_sg()
         self.contact_my = self._get_contact_my()
+        self.contact_bn = self._get_contact_bn()
         self.contact_th = self._get_contact_th()
 
     def _get_product_blouse(self):
@@ -97,6 +99,22 @@ class BaseTestCase(unittest.TestCase):
                 country=Country.objects.create(
                     iso2_code='MY', iso3_code='MYS',
                     name='MALAYSIA', printable_name='Malaysia',
+                    continent='AS'
+                )
+            )
+
+        return contact
+
+    def _get_contact_bn(self):
+        try:
+            contact = Contact.objects.get(first_name='Iam', last_name='Bruneian')
+        except ObjectDoesNotExist:
+            contact = Contact.objects.create(first_name='Iam', last_name='Bruneian')
+            contact.addressbook_set.create(street1=u'15½ Jalan Kota Batu',
+                city='Brunei Darussalam', postal_code='BU2529',
+                country=Country.objects.create(
+                    iso2_code='BN', iso3_code='BRN',
+                    name='BRUNEI DARUSSALAM', printable_name='Brunei Darussalam',
                     continent='AS'
                 )
             )
@@ -233,3 +251,16 @@ class SurfaceTestCaseNormal(BaseTestCase):
         self.assertTrue(cart4.is_shippable)
         self.assertEqual(ship4._weight(), Decimal('84'))
         self.assertEqual(ship4.cost(), Decimal('1.00'))
+
+    def test_country_filter(self):
+        cart1 = Cart.objects.create(site=self.site)
+        cart1.add_item(self.product_dress, 1)
+
+        ship1 = singpost(cart=cart1, service_type='SURFACE', contact=self.contact_my)
+        self.assertEqual(ship1.cost(), None)
+
+        ship2 = singpost(cart=cart1, service_type='SURFACE', contact=self.contact_bn)
+        self.assertEqual(ship2.cost(), None)
+
+        ship3 = singpost(cart=cart1, service_type='SURFACE', contact=self.contact_th)
+        self.assertEqual(ship3.cost(), Decimal('0.70'))
