@@ -22,9 +22,9 @@ config_register_list(
         'SINGPOST_SHIPPING_CHOICES',
         description=_("SingPost shipping choices available to customers."),
         choices = (
-            (('LOCAL', 'Local mail (inclusive of 7%% GST)')),
-            (('SURFACE', 'Surface mail (0%% GST)')),
-            (('AIR', 'Airmail (0%% GST)')),
+            (('LOCAL', 'Local mail (inclusive of 7% GST)')),
+            (('SURFACE', 'Surface mail (0% GST)')),
+            (('AIR', 'Airmail (0% GST)')),
         ),
         default = ('LOCAL', 'SURFACE', 'AIR')),
 )
