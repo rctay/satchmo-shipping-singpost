@@ -326,18 +326,6 @@ SERVICE_TIERS = {
     ),
 }
 
-def resolve_tier(service_type, contact):
-    tier = SERVICE_TIERS[service_type]
-
-    if not tier.filter.country_is_included(
-        contact.shipping_address.country):
-        return None
-
-    if tier.tiers == None and hasattr(tier, 'zones'):
-        tier = tier.tier_for_country(contact.shipping_address.country)
-
-    return tier
-
 class Shipper(BaseShipper):
     def __init__(self, cart=None, contact=None, service_type=None):
         super(Shipper, self).__init__(cart, contact)
@@ -358,6 +346,19 @@ class Shipper(BaseShipper):
         A basic description that will be displayed to the user when selecting their shipping options
         """
         return _("SingPost - %s" % self.service_type_description)
+
+    def _get_tier(self):
+        tier = SERVICE_TIERS[self.service_type_code]
+
+        if not tier.filter.country_is_included(
+            self.contact.shipping_address.country):
+            return None
+
+        if tier.tiers == None and hasattr(tier, 'zones'):
+            tier = tier.tier_for_country(self.contact.shipping_address.country)
+
+        return tier
+    tier = property(_get_tier)
 
     def _weight_for_shipment(self, shipment):
         total_weight = Decimal(0)
@@ -395,18 +396,17 @@ class Shipper(BaseShipper):
         """
         assert(self._calculated)
 
-        tier = resolve_tier(self.service_type_code, self.contact)
-        if tier == None:
+        if self.tier == None:
             return None
 
-        shipments = tier.partitioned_shipments(self._weight(), self.cart)
+        shipments = self.tier.partitioned_shipments(self._weight(), self.cart)
         if shipments == None or not len(shipments):
             return None
 
         total_cost = Decimal(0)
 
         for shipment in shipments:
-            total_cost += self._cost_for_shipment(shipment, tier)
+            total_cost += self._cost_for_shipment(shipment, self.tier)
 
         return total_cost
 
