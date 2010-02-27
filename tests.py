@@ -200,6 +200,10 @@ class LocalShippingTestCase(BaseTestCase):
         self.assertEqual(ship1._weight(), Decimal('315'))
         self.assertEqual(ship1.cost(), Decimal('1.50'))
 
+        ship1_r = singpost(cart=cart1, service_type=('LOCAL_REGISTERED',''), contact=self.contact_sg)
+        self.assertEqual(ship1_r._weight(), Decimal('315'))
+        self.assertEqual(ship1_r.cost(), Decimal('3.74'))
+
         cart2 = Cart.objects.create(site=self.site)
         cart2.add_item(p1, 3)
         ship2 = singpost(cart=cart2, service_type=('LOCAL',''), contact=self.contact_sg)
@@ -298,12 +302,20 @@ class SurfaceTestCase(BaseTestCase):
         self.assertEqual(ship3._weight(), Decimal('115'))
         self.assertEqual(ship3.cost(), Decimal('2.00'))
 
+        ship3_r = singpost(cart=cart3, service_type=('SURFACE_REGISTERED',''), contact=self.contact_sg)
+        self.assertEqual(ship3_r._weight(), Decimal('115'))
+        self.assertEqual(ship3_r.cost(), Decimal('4.24'))
+
         cart4 = Cart.objects.create(site=self.site)
         cart4.add_item(p1, 2)
         ship4 = singpost(cart=cart4, service_type=('SURFACE',''), contact=self.contact_th)
         self.assertTrue(cart4.is_shippable)
         self.assertEqual(ship4._weight(), Decimal('84'))
         self.assertEqual(ship4.cost(), Decimal('1.00'))
+
+        ship4_r = singpost(cart=cart4, service_type=('SURFACE_REGISTERED',''), contact=self.contact_th)
+        self.assertEqual(ship4_r._weight(), Decimal('84'))
+        self.assertEqual(ship4_r.cost(), Decimal('3.20'))
 
     def test_country_filter(self):
         cart1 = Cart.objects.create(site=self.site)

@@ -15,6 +15,7 @@ except:
 from django.utils.translation import ugettext as _
 from livesettings import config_value
 from shipping.modules.base import BaseShipper
+import re
 
 import logging
 log = logging.getLogger('singpost.shipper')
@@ -324,7 +325,32 @@ SERVICE_TIERS = {
         maximum_item_weight=2000,
         filter = CountryFilter(exclude=('SG'))
     ),
+
+    'LOCAL_REGISTERED': None,
+    'SURFACE_REGISTERED': None,
+    'AIRMAIL_REGISTERED': None,
 }
+
+HAS_SURCHARGE_PATTERN = '^(.+)_REGISTERED$'
+
+class Surcharge(object):
+    """
+    An additional charge to be applied on top of the cost calculated by a
+    :ref:`singpost.shipper.BaseCostTier <tier>`.
+
+    Satchmo doesn't allow one to this very easily on a per-service basis, so we
+    just present a totally separate service to the user.
+
+    :param: charge: The additional fee to be applied.
+    """
+    def __init__(self, charge, filter):
+       self.charge = safe_get_decimal(charge or 0)
+       self.filter = filter
+
+REGISTERED_SURCHARGE = (
+    Surcharge(Decimal('2.24'), CountryFilter(include=('SG'))),
+    Surcharge(Decimal('2.20'), CountryFilter(exclude=('SG'))),
+)
 
 class Shipper(BaseShipper):
     def __init__(self, cart=None, contact=None, service_type=None):
@@ -347,8 +373,31 @@ class Shipper(BaseShipper):
         """
         return _("SingPost - %s" % self.service_type_description)
 
+    def _get_surcharge(self):
+        m = re.match(HAS_SURCHARGE_PATTERN, self.service_type_code)
+        if not m:
+            return Decimal(0)
+
+        s = None
+        for surcharge in REGISTERED_SURCHARGE:
+            if surcharge.filter.country_is_included(
+                self.contact.shipping_address.country):
+                s = surcharge
+
+        if not s:
+            return Decimal(0)
+
+        return s.charge
+    surcharge = property(_get_surcharge)
+
     def _get_tier(self):
-        tier = SERVICE_TIERS[self.service_type_code]
+        tier_code = self.service_type_code
+
+        m = re.match(HAS_SURCHARGE_PATTERN, self.service_type_code)
+        if m:
+            tier_code = m.group(1)
+
+        tier = SERVICE_TIERS[tier_code]
 
         if not tier.filter.country_is_included(
             self.contact.shipping_address.country):
@@ -406,7 +455,7 @@ class Shipper(BaseShipper):
         total_cost = Decimal(0)
 
         for shipment in shipments:
-            total_cost += self._cost_for_shipment(shipment, self.tier)
+            total_cost += self._cost_for_shipment(shipment, self.tier) + self.surcharge
 
         return total_cost
 
