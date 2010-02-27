@@ -125,7 +125,7 @@ class ExplicitCostTiers(BaseCostTiers):
                 for i in xrange(cartitem.quantity):
                     a_shipment.append(cartitem)
         else:
-            the_weight = Decimal('0')
+            the_weight = Decimal(0)
             new_weight = None
             for cartitem in cart.cartitem_set.all():
                 for i in xrange(cartitem.quantity):
@@ -138,7 +138,7 @@ class ExplicitCostTiers(BaseCostTiers):
                         if new_weight == self.maximum_item_weight:
                             shipments.append(a_shipment)
                             a_shipment = []
-                    elif len(a_shipment) > 0 and the_weight > Decimal('0'):
+                    elif len(a_shipment) > 0 and the_weight > Decimal(0):
                         shipments.append(a_shipment)
                         a_shipment = [cartitem]
                         the_weight = Decimal(cartitem.product.weight)
@@ -185,7 +185,7 @@ class ImplicitCostTiers(ExplicitCostTiers):
             result = getcontext().divmod(
                 Decimal(shipment_weight - max_tier[0]),
                 Decimal(self.implied_tier[0]))
-            steps = result[0] + (1 if result[1] > Decimal('0') else 0)
+            steps = result[0] + (1 if result[1] > Decimal(0) else 0)
             result_cost = max_tier[1] + steps * self.implied_tier[1]
 
         return result_cost
@@ -349,7 +349,7 @@ class Shipper(BaseShipper):
         return _("SingPost - %s" % self.service_type_description)
 
     def _weight_for_shipment(self, shipment):
-        total_weight = Decimal('0')
+        total_weight = Decimal(0)
 
         for cartitem in shipment:
             if cartitem.product.is_shippable:
@@ -358,7 +358,7 @@ class Shipper(BaseShipper):
         return total_weight
 
     def _weight(self):
-        total_weight = Decimal('0')
+        total_weight = Decimal(0)
 
         for cartitem in self.cart.cartitem_set.all():
             if cartitem.product.is_shippable:
@@ -391,7 +391,7 @@ class Shipper(BaseShipper):
         if shipments == None or not len(shipments):
             return None
 
-        total_cost = Decimal('0.00')
+        total_cost = Decimal(0)
 
         for shipment in shipments:
             total_cost += self._cost_for_shipment(shipment, tier)
