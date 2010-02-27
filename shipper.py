@@ -428,4 +428,5 @@ class Shipper(BaseShipper):
         For example, may check to see if the recipient is in an allowed country
         or location.
         """
-        return True
+        ret = True if not self.tier == None else False
+        return ret

@@ -265,9 +265,11 @@ class LocalShippingTestCase(BaseTestCase):
 
         ship1 = singpost(cart=cart1, service_type=('LOCAL',''), contact=self.contact_sg)
         self.assertEqual(ship1.cost(), Decimal('1.50'))
+        self.assertEqual(ship1.valid(), True)
 
         ship2 = singpost(cart=cart1, service_type=('LOCAL',''), contact=self.contact_my)
         self.assertEqual(ship2.cost(), None)
+        self.assertEqual(ship2.valid(), False)
 
 class SurfaceTestCase(BaseTestCase):
     def test_shipping1(self):
@@ -309,12 +311,15 @@ class SurfaceTestCase(BaseTestCase):
 
         ship1 = singpost(cart=cart1, service_type=('SURFACE',''), contact=self.contact_my)
         self.assertEqual(ship1.cost(), None)
+        self.assertEqual(ship1.valid(), False)
 
         ship2 = singpost(cart=cart1, service_type=('SURFACE',''), contact=self.contact_bn)
         self.assertEqual(ship2.cost(), None)
+        self.assertEqual(ship2.valid(), False)
 
         ship3 = singpost(cart=cart1, service_type=('SURFACE',''), contact=self.contact_th)
         self.assertEqual(ship3.cost(), Decimal('0.70'))
+        self.assertEqual(ship3.valid(), True)
 
 class AirTestCase(BaseTestCase):
     def test_zoning(self):
@@ -323,6 +328,7 @@ class AirTestCase(BaseTestCase):
 
         ship1 = singpost(cart=cart1, service_type=('AIR',''), contact=self.contact_sg)
         self.assertEqual(ship1.cost(), None)
+        self.assertEqual(ship1.valid(), False)
 
     def test_zone1(self):
         p1 = self.product_dress
