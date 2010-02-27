@@ -19,6 +19,16 @@ from shipping.modules.base import BaseShipper
 import logging
 log = logging.getLogger('singpost.shipper')
 
+def safe_get_decimal(val):
+    try:
+        d = Decimal(val)
+    except ValueError:
+        d = Decimal(0)
+    except TypeError:
+        d = Decimal(0)
+
+    return d
+
 class CountryFilter(object):
     """
     If a country is found in the exclude tuple, return False immediately.
@@ -129,7 +139,8 @@ class ExplicitCostTiers(BaseCostTiers):
             new_weight = None
             for cartitem in cart.cartitem_set.all():
                 for i in xrange(cartitem.quantity):
-                    new_weight = the_weight + Decimal(cartitem.product.weight)
+                    product_weight = safe_get_decimal(cartitem.product.weight)
+                    new_weight = the_weight + product_weight
 
                     if new_weight <= self.maximum_item_weight:
                         the_weight = new_weight
@@ -141,7 +152,7 @@ class ExplicitCostTiers(BaseCostTiers):
                     elif len(a_shipment) > 0 and the_weight > Decimal('0'):
                         shipments.append(a_shipment)
                         a_shipment = [cartitem]
-                        the_weight = Decimal(cartitem.product.weight)
+                        the_weight = product_weight
                     else:
                         log.error("item exceeds max weight: " \
                             "name=%s, weight=%d" \
@@ -353,7 +364,7 @@ class Shipper(BaseShipper):
 
         for cartitem in shipment:
             if cartitem.product.is_shippable:
-                total_weight += Decimal(cartitem.product.weight)
+                total_weight += safe_get_decimal(cartitem.product.weight)
 
         return total_weight
 
@@ -362,7 +373,8 @@ class Shipper(BaseShipper):
 
         for cartitem in self.cart.cartitem_set.all():
             if cartitem.product.is_shippable:
-                total_weight += Decimal(cartitem.product.weight) * Decimal(cartitem.quantity)
+                total_weight += safe_get_decimal(cartitem.product.weight) * \
+                                safe_get_decimal(cartitem.quantity)
 
         return total_weight
 
