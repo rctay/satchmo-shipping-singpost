@@ -38,41 +38,38 @@ class BaseTestCase(unittest.TestCase):
         self.contact_jo = self._get_contact_jo()
 
     def _get_product_blouse(self):
-        try:
-            p = Product.objects.get(slug='shoulder-blouse')
-        except ObjectDoesNotExist:
-            p = Product.objects.create(
-                site=Site.objects.get_current(),
-                name='Shoulder Blouse',
-                slug='shoulder-blouse',
-                items_in_stock=10,
-                weight='315', weight_units='gms')
+        p, created = Product.objects.get_or_create(
+            slug='shoulder-blouse',
+            defaults={
+                'site': Site.objects.get_current(),
+                'name': 'Shoulder Blouse',
+                'items_in_stock': 10,
+                'weight': '315', 'weight_units': 'gms'
+            })
 
         return p
 
     def _get_product_dress(self):
-        try:
-            p = Product.objects.get(slug='lovely-dress')
-        except ObjectDoesNotExist:
-            p = Product.objects.create(
-                site=Site.objects.get_current(),
-                name='Lovely Dress',
-                slug='lovely-dress',
-                items_in_stock=10,
-                weight='42', weight_units='gms')
+        p, created = Product.objects.get_or_create(
+            slug='lovely-dress',
+            defaults={
+                'site': Site.objects.get_current(),
+                'name': 'Lovely Dress',
+                'items_in_stock': 10,
+                'weight': '42', 'weight_units': 'gms'
+            })
 
         return p
 
     def _get_product_skirt(self):
-        try:
-            p = Product.objects.get(slug='denim-skirt')
-        except ObjectDoesNotExist:
-            p = Product.objects.create(
-                site=Site.objects.get_current(),
-                name='Denim Skirt',
-                slug='denim-skirt',
-                items_in_stock=30,
-                weight='115', weight_units='gms')
+        p, created = Product.objects.get_or_create(
+            slug='denim-skirt',
+            defaults={
+                'site': Site.objects.get_current(),
+                'name': 'Denim Skirt',
+                'items_in_stock': 30,
+                'weight': '115', 'weight_units': 'gms'
+            })
 
         return p
 
