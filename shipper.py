@@ -23,9 +23,7 @@ log = logging.getLogger('singpost.shipper')
 def safe_get_decimal(val):
     try:
         d = Decimal(val)
-    except ValueError:
-        d = Decimal(0)
-    except TypeError:
+    except (ValueError, TypeError):
         d = Decimal(0)
 
     return d
