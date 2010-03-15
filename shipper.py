@@ -8,9 +8,9 @@ Please see LICENCE for licensing details.
 Each shipping option uses the data in an Order object to calculate the shipping cost and return the value
 """
 try:
-    from decimal import getcontext, Decimal
+    from decimal import getcontext, Decimal, InvalidOperation
 except:
-    from django.utils._decimal import getcontext, Decimal
+    from django.utils._decimal import getcontext, Decimal, InvalidOperation
 
 from django.utils.translation import ugettext as _
 from livesettings import config_value
@@ -23,7 +23,7 @@ log = logging.getLogger('singpost.shipper')
 def safe_get_decimal(val):
     try:
         d = Decimal(val)
-    except (ValueError, TypeError):
+    except (ValueError, TypeError, InvalidOperation):
         d = Decimal(0)
 
     return d
